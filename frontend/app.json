@@ -35,7 +35,13 @@
     },
     "owner": "marcbkm",
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permet de choisir une image pour illustrer un mot du dictionnaire."
+        }
+      ]
     ]
   }
 }

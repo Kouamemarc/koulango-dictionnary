@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routers import admin, auth, contributions, favorites, words
+from app.api.routers import admin, auth, contributions, favorites, media, words
 from app.core.config import settings
 
 app = FastAPI(
@@ -28,7 +28,7 @@ app.add_middleware(
 )
 
 # Enregistrement des routers sous le préfixe /api/v1
-for r in (auth.router, words.router, contributions.router, favorites.router, admin.router):
+for r in (auth.router, words.router, contributions.router, favorites.router, admin.router, media.router):
     app.include_router(r, prefix=settings.API_V1_PREFIX)
 
 

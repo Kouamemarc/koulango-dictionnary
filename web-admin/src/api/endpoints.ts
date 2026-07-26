@@ -23,3 +23,13 @@ export const AdminApi = {
   updateWord: (id: number, body: WordEdit) => api.put<WordDetail>(`/admin/words/${id}`, body).then((r) => r.data),
   deleteWord: (id: number) => api.delete(`/admin/words/${id}`),
 };
+
+export const MediaApi = {
+  upload: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api
+      .post<{ url: string }>("/media", formData, { headers: { "Content-Type": "multipart/form-data" } })
+      .then((r) => r.data);
+  },
+};

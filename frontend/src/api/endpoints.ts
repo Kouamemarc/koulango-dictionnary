@@ -15,3 +15,18 @@ export const ContributionsApi = {
   propose: (body: WordCreate) =>
     api.post<WordSummary>("/contributions", body).then((r) => r.data),
 };
+
+export const MediaApi = {
+  upload: (asset: { uri: string; mimeType?: string | null; fileName?: string | null }) => {
+    const formData = new FormData();
+    // React Native accepte cette forme spéciale (uri/name/type) pour un upload multipart.
+    formData.append("file", {
+      uri: asset.uri,
+      name: asset.fileName ?? "image.jpg",
+      type: asset.mimeType ?? "image/jpeg",
+    } as unknown as Blob);
+    return api
+      .post<{ url: string }>("/media", formData, { headers: { "Content-Type": "multipart/form-data" } })
+      .then((r) => r.data);
+  },
+};

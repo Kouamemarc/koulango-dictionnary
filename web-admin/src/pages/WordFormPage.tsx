@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AdminApi, WordsApi } from "../api/endpoints";
+import { AdminApi, MediaApi, WordsApi } from "../api/endpoints";
 import { AdminLayout } from "../components/AdminLayout";
 import type { Audio, Definition, Example, Pronunciation } from "../api/types";
 
@@ -33,6 +33,7 @@ export default function WordFormPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [form, setForm] = useState<FormState>(EMPTY);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const { data: existing, isLoading } = useQuery({
     queryKey: ["word", id],
@@ -98,6 +99,20 @@ export default function WordFormPage() {
     submit.mutate();
   };
 
+  const onImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const { url } = await MediaApi.upload(file);
+      setForm((f) => ({ ...f, image_url: url }));
+    } catch {
+      alert("Envoi de l'image impossible.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   if (isEdit && isLoading) return <AdminLayout title="Modifier un mot"><p>Chargement…</p></AdminLayout>;
 
   return (
@@ -118,8 +133,12 @@ export default function WordFormPage() {
           </div>
         </div>
         <div className="field">
-          <label>URL image (illustration)</label>
-          <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
+          <label>Illustration</label>
+          {form.image_url && (
+            <img src={form.image_url} alt="" style={{ width: 120, height: 120, objectFit: "cover", borderRadius: 8 }} />
+          )}
+          <input type="file" accept="image/*" onChange={onImageChange} disabled={uploadingImage} />
+          {uploadingImage && <p className="muted">Envoi en cours…</p>}
         </div>
         <div className="field">
           <label>Source</label>
@@ -199,7 +218,7 @@ export default function WordFormPage() {
         </div>
 
         {submit.isError && <p className="error">Enregistrement impossible (terme déjà utilisé ?).</p>}
-        <button type="submit" disabled={!form.term.trim() || submit.isPending}>
+        <button type="submit" disabled={!form.term.trim() || submit.isPending || uploadingImage}>
           {submit.isPending ? "Enregistrement…" : isEdit ? "Enregistrer les modifications" : "Publier le mot"}
         </button>
       </form>

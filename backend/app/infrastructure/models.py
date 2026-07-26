@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from sqlalchemy import (
-    Boolean, DateTime, Enum, Float, ForeignKey, Integer, String, Text,
+    Boolean, DateTime, Enum, Float, ForeignKey, Integer, LargeBinary, String, Text,
     UniqueConstraint, func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -258,3 +258,14 @@ class Notification(Base, TimestampMixin):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     body: Mapped[str | None] = mapped_column(Text)
     is_read: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+
+
+# --------------------------------------------------------------------------- #
+#  Fichiers média uploadés (illustrations, audio) — stockés en base
+# --------------------------------------------------------------------------- #
+class MediaFile(Base, TimestampMixin):
+    __tablename__ = "media_files"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    content_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)

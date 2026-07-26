@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Alert, Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { Button, Field } from "@/components/UI";
-import { ContributionsApi } from "@/api/endpoints";
+import { ContributionsApi, MediaApi } from "@/api/endpoints";
 import type { Suggestion, WordCreate } from "@/types";
 import { colors, font, radius, spacing } from "@/theme";
 
@@ -10,8 +11,37 @@ export default function AddWordScreen({ navigation }: any) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const set = (k: keyof WordCreate) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  /** Choisit une image dans la galerie de l'appareil et l'envoie au serveur. */
+  const pickImage = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert("Permission requise", "Autorise l'accès aux photos pour choisir une image.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+    });
+    if (result.canceled) return;
+
+    const asset = result.assets[0];
+    setImagePreview(asset.uri);
+    setUploadingImage(true);
+    try {
+      const { url } = await MediaApi.upload({ uri: asset.uri, mimeType: asset.mimeType, fileName: asset.fileName });
+      setForm((f) => ({ ...f, image_url: url }));
+    } catch {
+      Alert.alert("Erreur", "Envoi de l'image impossible.");
+      setImagePreview(null);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   /** Étape 1 : vérification intelligente avant l'enregistrement. */
   const handleCheck = async () => {
@@ -62,9 +92,20 @@ export default function AddWordScreen({ navigation }: any) {
       <Field label="Exemple" value={form.example} onChangeText={set("example")} multiline />
       <Field label="Prononciation" value={form.pronunciation} onChangeText={set("pronunciation")} />
       <Field label="URL audio" value={form.audio_url} onChangeText={set("audio_url")} autoCapitalize="none" />
-      <Field label="URL image (illustration)" value={form.image_url} onChangeText={set("image_url")} autoCapitalize="none" />
+
+      <View style={{ marginBottom: spacing.md }}>
+        <Text style={styles.label}>Illustration</Text>
+        {imagePreview && <Image source={{ uri: imagePreview }} style={styles.preview} />}
+        <Button
+          title={uploadingImage ? "Envoi…" : imagePreview ? "Changer l'image" : "Choisir une image"}
+          variant="ghost"
+          onPress={pickImage}
+          loading={uploadingImage}
+        />
+      </View>
+
       <Field label="Source" value={form.source} onChangeText={set("source")} />
-      <Button title="Vérifier et proposer" onPress={handleCheck} loading={loading} />
+      <Button title="Vérifier et proposer" onPress={handleCheck} loading={loading} disabled={uploadingImage} />
 
       {/* Modale de la recherche intelligente */}
       <Modal visible={showModal} transparent animationType="fade">
@@ -93,6 +134,8 @@ export default function AddWordScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
+  label: { fontSize: font.small, color: colors.textMuted, marginBottom: 6, fontWeight: "500" },
+  preview: { width: 120, height: 120, borderRadius: radius.md, backgroundColor: colors.border, marginBottom: spacing.sm },
   backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", padding: spacing.lg },
   sheet: { backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg },
   modalTitle: { fontSize: font.h3, fontWeight: "700", color: colors.text },
