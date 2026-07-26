@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: koulango_db
+    environment:
+      POSTGRES_USER: koulango
+      POSTGRES_PASSWORD: koulango
+      POSTGRES_DB: koulango
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U koulango"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./backend
+    container_name: koulango_api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://koulango:koulango@db:5432/koulango
+      SECRET_KEY: dev-secret-change-me
+      DEBUG: "true"
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

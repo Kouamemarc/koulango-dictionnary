@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Koulango Dictionary",
+    "slug": "koulango-dictionary",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "koulango",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#0F766E"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": true, "bundleIdentifier": "dev.koulango.dictionary" },
+    "android": {
+      "package": "dev.koulango.dictionary",
+      "adaptiveIcon": { "backgroundColor": "#0F766E" }
+    },
+    "extra": {
+      "apiUrl": "http://localhost:8000/api/v1"
+    }
+  }
+}
