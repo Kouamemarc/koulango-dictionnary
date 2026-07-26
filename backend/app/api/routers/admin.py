@@ -5,20 +5,19 @@ from sqlalchemy.orm import Session
 from app.api.deps import require_role
 from app.application.services.admin_service import AdminService
 from app.core.database import get_db
-from app.domain.enums import UserRole, WordStatus
-from app.infrastructure.models import Contribution, User
-from app.infrastructure.repositories.word_repository import WordRepository
-from app.schemas.admin import MergeRequest, ValidationRequest
-from app.schemas.word import WordDetail, WordSummary
+from app.domain.enums import UserRole
+from app.infrastructure.models import User
+from app.schemas.admin import MergeRequest, PendingContribution, ValidationRequest
+from app.schemas.word import WordDetail
 
 router = APIRouter(prefix="/admin", tags=["Administration"])
 moderator = Depends(require_role(UserRole.MODERATOR))
 admin = Depends(require_role(UserRole.ADMIN))
 
 
-@router.get("/pending", response_model=list[WordSummary], summary="Mots en attente de validation")
+@router.get("/pending", response_model=list[PendingContribution], summary="Contributions en attente de validation")
 def pending(limit: int = 50, offset: int = 0, db: Session = Depends(get_db), _: User = moderator):
-    return WordRepository(db).list_by_status(WordStatus.PENDING, limit, offset)
+    return AdminService(db).list_pending(limit, offset)
 
 
 @router.post("/contributions/{contribution_id}/review", summary="Accepter / refuser une contribution")

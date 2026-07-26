@@ -1,14 +1,37 @@
 """Cas d'usage de modération / administration."""
 from fastapi import HTTPException, status
+from sqlalchemy import select
 
 from app.domain.enums import ValidationDecision, WordStatus
 from app.infrastructure.models import Contribution, Notification, Validation, Word
-from app.schemas.admin import MergeRequest, ValidationRequest
+from app.schemas.admin import MergeRequest, PendingContribution, ValidationRequest
 
 
 class AdminService:
     def __init__(self, db):
         self.db = db
+
+    def list_pending(self, limit: int = 50, offset: int = 0) -> list[PendingContribution]:
+        """Contributions en attente, avec l'id de contribution nécessaire à /review."""
+        rows = self.db.execute(
+            select(Contribution, Word)
+            .join(Word, Contribution.word_id == Word.id)
+            .where(Contribution.status == WordStatus.PENDING)
+            .order_by(Contribution.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        ).all()
+        return [
+            PendingContribution(
+                contribution_id=c.id,
+                word_id=w.id,
+                term=w.term,
+                fr_translation=w.fr_translation,
+                en_translation=w.en_translation,
+                created_at=c.created_at,
+            )
+            for c, w in rows
+        ]
 
     def _notify(self, user_id: int | None, title: str, body: str) -> None:
         if user_id is None:

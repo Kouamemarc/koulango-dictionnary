@@ -14,3 +14,17 @@ services:
         value: "false"
       - key: BACKEND_CORS_ORIGINS
         value: '["*"]'
+
+  - type: web
+    name: koulango-admin
+    runtime: static
+    rootDir: ./web-admin
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://koulango-dictionnary.onrender.com/api/v1
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
