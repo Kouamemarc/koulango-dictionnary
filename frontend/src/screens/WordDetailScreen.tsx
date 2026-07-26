@@ -119,8 +119,8 @@ export default function WordDetailScreen({ route }: any) {
         </>
       )}
 
-      {word.en_translation ? <Text style={styles.source}>EN · {word.en_translation}</Text> : null}
-      {word.source ? <Text style={styles.source}>Source : {word.source}</Text> : null}
+      {word.en_translation ? <Text style={styles.footerInfo}>Traduction anglaise : {word.en_translation}</Text> : null}
+      {word.source ? <Text style={styles.footerInfo}>Source : {word.source}</Text> : null}
     </ScrollView>
   );
 }
@@ -158,5 +158,5 @@ const styles = StyleSheet.create({
   },
   moreButton: { flexDirection: "row", alignItems: "center", gap: 2 },
   moreText: { fontSize: font.small, fontWeight: "600", color: colors.primaryDark },
-  source: { fontSize: font.tiny, color: colors.textMuted, marginTop: spacing.sm },
+  footerInfo: { fontSize: font.small, color: colors.textMuted, marginTop: spacing.sm },
 });
