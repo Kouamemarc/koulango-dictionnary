@@ -33,7 +33,11 @@
       "Read(//c/Users/marcb/Downloads/**)",
       "Bash(\".venv/Scripts/python.exe\" -m pytest -q)",
       "Bash(npm run *)",
-      "Bash(curl -s https://koulango-dictionnary.onrender.com/api/v1/openapi.json)"
+      "Bash(curl -s https://koulango-dictionnary.onrender.com/api/v1/openapi.json)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://koulango-dictionnary-1.onrender.com/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://koulango-dictionnary-1.onrender.com/words)",
+      "Bash(curl -s https://koulango-dictionnary-1.onrender.com/)",
+      "Bash(curl -s \"https://koulango-dictionnary-1.onrender.com/assets/index-Dg3I10-P.js\")"
     ]
   }
 }
