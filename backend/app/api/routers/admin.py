@@ -8,7 +8,7 @@ from app.core.database import get_db
 from app.domain.enums import UserRole
 from app.infrastructure.models import User
 from app.schemas.admin import MergeRequest, PendingContribution, ValidationRequest
-from app.schemas.word import WordDetail
+from app.schemas.word import WordCreate, WordDetail, WordEdit
 
 router = APIRouter(prefix="/admin", tags=["Administration"])
 moderator = Depends(require_role(UserRole.MODERATOR))
@@ -25,6 +25,18 @@ def review(contribution_id: int, req: ValidationRequest, db: Session = Depends(g
     """Accepter, refuser (motif obligatoire) ou marquer fusionnée une contribution."""
     contribution = AdminService(db).review_contribution(contribution_id, req, user.id)
     return {"contribution_id": contribution.id, "status": contribution.status}
+
+
+@router.post("/words", response_model=WordDetail, status_code=201, summary="Ajouter un mot (publié directement)")
+def create_word(data: WordCreate, db: Session = Depends(get_db), _: User = moderator):
+    """Ajout direct par un modérateur/administrateur : pas de file d'attente."""
+    return AdminService(db).create_word(data)
+
+
+@router.put("/words/{word_id}", response_model=WordDetail, summary="Modifier un mot")
+def update_word(word_id: int, data: WordEdit, db: Session = Depends(get_db), _: User = moderator):
+    """Édition complète (champs + définitions/exemples/prononciations/audios)."""
+    return AdminService(db).update_word(word_id, data)
 
 
 @router.post("/words/merge", response_model=WordDetail, summary="Fusionner deux mots")

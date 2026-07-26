@@ -3,8 +3,12 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 
 from app.domain.enums import ValidationDecision, WordStatus
-from app.infrastructure.models import Contribution, Notification, Validation, Word
+from app.infrastructure.models import (
+    Audio, Contribution, Definition, Example, Notification, Pronunciation, Validation, Word,
+)
+from app.infrastructure.repositories.word_repository import normalize
 from app.schemas.admin import MergeRequest, PendingContribution, ValidationRequest
+from app.schemas.word import WordCreate, WordEdit
 
 
 class AdminService:
@@ -70,6 +74,64 @@ class AdminService:
         self.db.commit()
         self.db.refresh(contribution)
         return contribution
+
+    def create_word(self, data: WordCreate) -> Word:
+        """Ajout direct par un modérateur/admin : publié immédiatement, sans file d'attente."""
+        norm = normalize(data.term)
+        if self.db.scalar(select(Word).where(Word.normalized == norm)):
+            raise HTTPException(status.HTTP_409_CONFLICT, "Ce mot existe déjà.")
+
+        word = Word(
+            term=data.term.strip(),
+            normalized=norm,
+            fr_translation=data.fr_translation,
+            en_translation=data.en_translation,
+            source=data.source,
+            image_url=data.image_url,
+            dialect_id=data.dialect_id,
+            status=WordStatus.PUBLISHED,
+        )
+        if data.definition:
+            word.definitions.append(Definition(text=data.definition))
+        if data.example:
+            word.examples.append(Example(sentence=data.example))
+        if data.pronunciation:
+            word.pronunciations.append(Pronunciation(phonetic=data.pronunciation))
+        if data.audio_url:
+            word.audios.append(Audio(url=data.audio_url))
+
+        self.db.add(word)
+        self.db.commit()
+        self.db.refresh(word)
+        return word
+
+    def update_word(self, word_id: int, data: WordEdit) -> Word:
+        """Édition complète d'un mot : champs principaux + remplacement des sous-entités."""
+        word = self.db.get(Word, word_id)
+        if not word:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Mot introuvable.")
+
+        norm = normalize(data.term)
+        if norm != word.normalized:
+            clash = self.db.scalar(select(Word).where(Word.normalized == norm, Word.id != word_id))
+            if clash:
+                raise HTTPException(status.HTTP_409_CONFLICT, "Un autre mot utilise déjà ce terme.")
+
+        word.term = data.term.strip()
+        word.normalized = norm
+        word.fr_translation = data.fr_translation
+        word.en_translation = data.en_translation
+        word.source = data.source
+        word.image_url = data.image_url
+        word.dialect_id = data.dialect_id
+        word.definitions = [Definition(text=d.text, part_of_speech=d.part_of_speech) for d in data.definitions]
+        word.examples = [Example(sentence=e.sentence, translation=e.translation) for e in data.examples]
+        word.pronunciations = [Pronunciation(ipa=p.ipa, phonetic=p.phonetic) for p in data.pronunciations]
+        word.audios = [Audio(url=a.url, duration_ms=a.duration_ms, speaker=a.speaker) for a in data.audios]
+
+        self.db.commit()
+        self.db.refresh(word)
+        return word
 
     def merge_words(self, req: MergeRequest) -> Word:
         """Fusionne deux mots : source -> target (le canonique conservé)."""

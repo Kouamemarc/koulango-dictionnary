@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AdminApi } from "../api/endpoints";
-import { useAuth } from "../auth/AuthContext";
+import { AdminLayout } from "../components/AdminLayout";
 
 export default function PendingPage() {
-  const { user, logout } = useAuth();
   const qc = useQueryClient();
   const [reasonFor, setReasonFor] = useState<number | null>(null);
   const [reason, setReason] = useState("");
@@ -27,15 +26,7 @@ export default function PendingPage() {
   const isForbidden = (error as { response?: { status?: number } } | null)?.response?.status === 403;
 
   return (
-    <div className="page">
-      <header className="page-header">
-        <div>
-          <h1>Contributions en attente</h1>
-          {user && <p className="muted">Connecté en tant que {user.username} ({user.role})</p>}
-        </div>
-        <button className="ghost" onClick={logout}>Déconnexion</button>
-      </header>
-
+    <AdminLayout title="Contributions en attente">
       {isLoading && <p>Chargement…</p>}
       {isForbidden && <p className="error">Ton compte n'a pas les privilèges de modération.</p>}
       {!isLoading && !error && data?.length === 0 && <p className="muted">Rien à valider. 🎉</p>}
@@ -80,6 +71,6 @@ export default function PendingPage() {
           </li>
         ))}
       </ul>
-    </div>
+    </AdminLayout>
   );
 }

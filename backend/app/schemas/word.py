@@ -87,6 +87,20 @@ class WordDetail(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class WordEdit(BaseModel):
+    """Édition complète d'un mot existant (réservé à la modération)."""
+    term: str = Field(min_length=1, max_length=255)
+    fr_translation: str | None = None
+    en_translation: str | None = None
+    source: str | None = None
+    image_url: str | None = None
+    dialect_id: int | None = None
+    definitions: list[DefinitionIn] = []
+    examples: list[ExampleIn] = []
+    pronunciations: list[PronunciationIn] = []
+    audios: list[AudioIn] = []
+
+
 class Suggestion(BaseModel):
     """Une proposition de la recherche floue."""
     word_id: int
