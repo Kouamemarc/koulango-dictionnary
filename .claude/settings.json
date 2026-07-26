@@ -24,7 +24,13 @@
       "Bash(npx expo *)",
       "Bash(npm install *)",
       "Bash(python -c ' *)",
-      "Bash(./gradlew assembleDebug)"
+      "Bash(./gradlew assembleDebug)",
+      "Bash(cd /tmp)",
+      "Bash(curl -sL -o app.tar.gz \"https://expo.dev/artifacts/eas/LBo52abPJcGppo41hr2ziZLqMDg6Rx8nJByIilvU1ek.tar.gz\")",
+      "Bash(tar -xzf app.tar.gz release/app-release.apk)",
+      "Bash(cp release/app-release.apk \"/c/Users/marcb/Downloads/koulango-dictionary.apk\")",
+      "Bash(rm -rf app.tar.gz release debug)",
+      "Read(//c/Users/marcb/Downloads/**)"
     ]
   }
 }
