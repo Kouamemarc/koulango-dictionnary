@@ -7,7 +7,10 @@
       "Bash(export ANDROID_HOME=\"/c/Users/marcb/AppData/Local/Android/Sdk\")",
       "Bash(export ANDROID_SDK_ROOT=\"$ANDROID_HOME\")",
       "Bash(./gradlew assembleRelease --stacktrace)",
-      "Bash(echo \"EXIT:$?\")"
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(npx eas *)",
+      "Bash(curl -sL -o /tmp/eas_artifact.bin \"https://expo.dev/artifacts/eas/sGQu9PPWQzOTHKeqXZeJd3mi-KpdbFI_Sp1yY51Wl5g.tar.gz\")",
+      "Read(//tmp/**)"
     ]
   }
 }
