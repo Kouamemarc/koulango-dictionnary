@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "scheme": "koulango",
     "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.png",
     "splash": {
       "backgroundColor": "#0F766E"
     },
@@ -19,8 +20,12 @@
     "android": {
       "package": "dev.koulango.dictionary",
       "adaptiveIcon": {
-        "backgroundColor": "#0F766E"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FDF3DE"
       }
+    },
+    "web": {
+      "favicon": "./assets/icon.png"
     },
     "extra": {
       "apiUrl": "https://koulango-dictionnary.onrender.com/api/v1",

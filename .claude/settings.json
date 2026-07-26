@@ -22,7 +22,9 @@
       "Bash(.venv/Scripts/python.exe -c ' *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://koulango-dictionnary.onrender.com/api/v1/words)",
       "Bash(npx expo *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(python -c ' *)",
+      "Bash(./gradlew assembleDebug)"
     ]
   }
 }
