@@ -1,9 +1,12 @@
-import React from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect } from "react";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Audio } from "expo-av";
+import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Card, Loading } from "@/components/UI";
 import { WordsApi } from "@/api/endpoints";
+import { useFavorites } from "@/store/favorites";
+import { useHistory } from "@/store/history";
 import { colors, font, spacing } from "@/theme";
 import type { Definition, Example } from "@/types";
 
@@ -13,6 +16,16 @@ export default function WordDetailScreen({ route }: any) {
     queryKey: ["word", id],
     queryFn: () => WordsApi.detail(id),
   });
+
+  const isFavorite = useFavorites((s) => s.isFavorite(id));
+  const toggleFavorite = useFavorites((s) => s.toggle);
+  const record = useHistory((s) => s.record);
+
+  useEffect(() => {
+    if (word) {
+      record({ id: word.id, term: word.term, fr_translation: word.fr_translation, image_url: word.image_url, status: word.status });
+    }
+  }, [word]);
 
   const playAudio = async (url: string) => {
     const { sound } = await Audio.Sound.createAsync({ uri: url });
@@ -24,7 +37,15 @@ export default function WordDetailScreen({ route }: any) {
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing.md }}>
       {word.image_url ? <Image source={{ uri: word.image_url }} style={styles.image} /> : null}
-      <Text style={styles.term}>{word.term}</Text>
+      <View style={styles.titleRow}>
+        <Text style={styles.term}>{word.term}</Text>
+        <TouchableOpacity
+          onPress={() => toggleFavorite({ id: word.id, term: word.term, fr_translation: word.fr_translation, image_url: word.image_url, status: word.status })}
+          hitSlop={8}
+        >
+          <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={28} color={colors.danger} />
+        </TouchableOpacity>
+      </View>
       {word.pronunciations[0]?.ipa ? (
         <Text style={styles.ipa}>/{word.pronunciations[0].ipa}/</Text>
       ) : null}
@@ -78,6 +99,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   image: { width: "100%", height: 200, borderRadius: 16, marginBottom: spacing.md, backgroundColor: colors.border },
+  titleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   term: { fontSize: font.h1, fontWeight: "800", color: colors.text },
   ipa: { fontSize: font.body, color: colors.textMuted, marginTop: 2 },
   badges: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: spacing.md },

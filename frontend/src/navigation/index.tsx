@@ -8,6 +8,8 @@ import { colors } from "@/theme";
 import SearchScreen from "@/screens/SearchScreen";
 import WordDetailScreen from "@/screens/WordDetailScreen";
 import AddWordScreen from "@/screens/AddWordScreen";
+import FavoritesScreen from "@/screens/FavoritesScreen";
+import HistoryScreen from "@/screens/HistoryScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -23,8 +25,12 @@ function Tabs() {
     >
       <Tab.Screen name="Recherche" component={SearchScreen}
         options={{ tabBarIcon: ({ color, size }) => <Ionicons name="search" color={color} size={size} /> }} />
+      <Tab.Screen name="Favoris" component={FavoritesScreen}
+        options={{ tabBarIcon: ({ color, size }) => <Ionicons name="heart-outline" color={color} size={size} /> }} />
       <Tab.Screen name="Ajouter" component={AddWordScreen}
         options={{ tabBarIcon: ({ color, size }) => <Ionicons name="add-circle-outline" color={color} size={size} /> }} />
+      <Tab.Screen name="Historique" component={HistoryScreen}
+        options={{ tabBarIcon: ({ color, size }) => <Ionicons name="time-outline" color={color} size={size} /> }} />
     </Tab.Navigator>
   );
 }
