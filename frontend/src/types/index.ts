@@ -1,5 +1,7 @@
 /** Types partagés avec l'API backend. */
 
+export type Lang = "koulango" | "francais";
+
 export type WordStatus =
   | "EN_ATTENTE_VALIDATION"
   | "PUBLIE"

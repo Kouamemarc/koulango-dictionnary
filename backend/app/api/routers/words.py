@@ -23,10 +23,11 @@ def list_words(
 def search(
     q: str = Query(min_length=1, description="Terme recherché"),
     limit: int = Query(20, le=50),
+    lang: str = Query("koulango", pattern="^(koulango|francais)$", description="Sens de recherche"),
     db: Session = Depends(get_db),
 ):
-    """Recherche instantanée (préfixe + similarité trigram) parmi les mots publiés."""
-    return WordRepository(db).search(q, limit)
+    """Recherche instantanée bidirectionnelle (koulango ou français) parmi les mots publiés."""
+    return WordRepository(db).search(q, limit, lang)
 
 
 @router.get("/{word_id}", response_model=WordDetail, summary="Fiche détaillée d'un mot")

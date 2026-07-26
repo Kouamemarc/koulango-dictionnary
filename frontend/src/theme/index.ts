@@ -1,14 +1,15 @@
-/** Palette et tokens de design (moderne, accessible, contrasté). */
+/** Palette et tokens de design — vert forêt / brun / crème (identité Koulango). */
 export const colors = {
-  primary: "#0F766E",      // teal 700
-  primaryDark: "#115E59",
-  accent: "#F59E0B",       // amber
-  bg: "#F8FAFC",
+  primary: "#1B6B3D",      // vert forêt
+  primaryDark: "#124D2B",
+  accent: "#8B4A1E",       // brun (bois, terre)
+  bg: "#FBF1DC",           // crème
   surface: "#FFFFFF",
-  text: "#0F172A",
-  textMuted: "#64748B",
-  border: "#E2E8F0",
-  danger: "#DC2626",
+  text: "#241A10",
+  textMuted: "#6B5D4D",
+  border: "#EADFC4",
+  danger: "#B91C1C",
+  favorite: "#7B341E",     // cœur favoris (brun-rouge, cohérent avec l'accent)
   success: "#16A34A",
   warning: "#D97706",
 };

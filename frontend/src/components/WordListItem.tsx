@@ -1,10 +1,15 @@
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Card } from "@/components/UI";
+import { useFavorites } from "@/store/favorites";
 import { colors, font, radius, spacing } from "@/theme";
 import type { WordSummary } from "@/types";
 
 export function WordListItem({ item, navigation }: { item: WordSummary; navigation: any }) {
+  const isFavorite = useFavorites((s) => s.isFavorite(item.id));
+  const toggleFavorite = useFavorites((s) => s.toggle);
+
   return (
     <TouchableOpacity onPress={() => navigation.navigate("WordDetail", { id: item.id })}>
       <Card style={styles.row}>
@@ -19,6 +24,9 @@ export function WordListItem({ item, navigation }: { item: WordSummary; navigati
           <Text style={styles.term}>{item.term}</Text>
           {item.fr_translation ? <Text style={styles.tr}>{item.fr_translation}</Text> : null}
         </View>
+        <TouchableOpacity onPress={() => toggleFavorite(item)} hitSlop={8}>
+          <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={22} color={colors.favorite} />
+        </TouchableOpacity>
       </Card>
     </TouchableOpacity>
   );

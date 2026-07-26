@@ -43,7 +43,7 @@ export default function WordDetailScreen({ route }: any) {
           onPress={() => toggleFavorite({ id: word.id, term: word.term, fr_translation: word.fr_translation, image_url: word.image_url, status: word.status })}
           hitSlop={8}
         >
-          <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={28} color={colors.danger} />
+          <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={28} color={colors.favorite} />
         </TouchableOpacity>
       </View>
       {word.pronunciations[0]?.ipa ? (
@@ -103,8 +103,8 @@ const styles = StyleSheet.create({
   term: { fontSize: font.h1, fontWeight: "800", color: colors.text },
   ipa: { fontSize: font.body, color: colors.textMuted, marginTop: 2 },
   badges: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: spacing.md },
-  badgeFr: { backgroundColor: "#CCFBF1", color: colors.primaryDark, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, fontSize: font.small },
-  badgeEn: { backgroundColor: "#FEF3C7", color: "#92400E", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, fontSize: font.small },
+  badgeFr: { backgroundColor: "#DCEEDD", color: colors.primaryDark, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, fontSize: font.small },
+  badgeEn: { backgroundColor: "#F0E4D3", color: colors.accent, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, fontSize: font.small },
   sectionTitle: { fontSize: font.h3, fontWeight: "700", color: colors.text, marginBottom: spacing.sm },
   body: { fontSize: font.body, color: colors.text },
   pos: { fontSize: font.small, color: colors.textMuted, marginTop: 4, fontStyle: "italic" },

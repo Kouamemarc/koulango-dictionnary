@@ -1,11 +1,11 @@
 /** Fonctions d'appel de l'API, typées. */
 import { api } from "./client";
-import type { SmartCheckResponse, WordCreate, WordDetail, WordSummary } from "@/types";
+import type { Lang, SmartCheckResponse, WordCreate, WordDetail, WordSummary } from "@/types";
 
 export const WordsApi = {
   list: () => api.get<WordSummary[]>("/words").then((r) => r.data),
-  search: (q: string) =>
-    api.get<WordSummary[]>("/words/search", { params: { q } }).then((r) => r.data),
+  search: (q: string, lang: Lang = "koulango") =>
+    api.get<WordSummary[]>("/words/search", { params: { q, lang } }).then((r) => r.data),
   detail: (id: number) => api.get<WordDetail>(`/words/${id}`).then((r) => r.data),
 };
 

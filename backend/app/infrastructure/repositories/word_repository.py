@@ -55,17 +55,26 @@ class WordRepository:
     def get_by_normalized(self, normalized: str) -> Word | None:
         return self.db.scalar(select(Word).where(Word.normalized == normalized))
 
-    def search(self, query: str, limit: int = 20) -> Sequence[Word]:
-        """Recherche instantanée : préfixe + similarité trigram, mots publiés."""
+    def search(self, query: str, limit: int = 20, lang: str = "koulango") -> Sequence[Word]:
+        """Recherche instantanée bidirectionnelle : koulango (préfixe + trigram) ET
+        traduction française (préfixe), mots publiés. `lang` ne change que la priorité
+        d'affichage (koulango d'abord, ou français d'abord)."""
         norm = normalize(query)
+        q_lower = query.strip().lower()
+        term_similarity = func.similarity(Word.normalized, norm)
+        term_match = (Word.normalized.like(f"{norm}%")) | (term_similarity > 0.2)
+        fr_match = func.lower(Word.fr_translation).like(f"%{q_lower}%")
+
+        order = (
+            (fr_match.desc(), term_similarity.desc())
+            if lang == "francais"
+            else (term_similarity.desc(), fr_match.desc())
+        )
         stmt = (
             select(Word)
             .where(Word.status == WordStatus.PUBLISHED)
-            .where(
-                (Word.normalized.like(f"{norm}%"))
-                | (func.similarity(Word.normalized, norm) > 0.2)
-            )
-            .order_by(func.similarity(Word.normalized, norm).desc())
+            .where(term_match | fr_match)
+            .order_by(*order)
             .limit(limit)
         )
         return list(self.db.scalars(stmt))
