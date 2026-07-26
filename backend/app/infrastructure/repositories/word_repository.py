@@ -95,7 +95,7 @@ class WordRepository:
                    similarity(normalized, :norm) AS sim,
                    levenshtein(normalized, :norm) AS dist
             FROM words
-            WHERE status <> 'REFUSE'
+            WHERE status <> 'REJECTED'
               AND (
                     similarity(normalized, :norm) >= :threshold
                  OR levenshtein(normalized, :norm) <= :max_distance
