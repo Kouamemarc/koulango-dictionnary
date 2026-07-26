@@ -18,7 +18,9 @@
       "Bash(powershell -NoProfile -Command \"Stop-Process -Id 31388 -Force -ErrorAction SilentlyContinue\")",
       "Bash(rm -f src/App.css src/assets/hero.png src/assets/react.svg)",
       "Bash(rmdir src/assets)",
-      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*vite*5183*'\\\\'' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }')"
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*vite*5183*'\\\\'' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }')",
+      "Bash(.venv/Scripts/python.exe -c ' *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://koulango-dictionnary.onrender.com/api/v1/words)"
     ]
   }
 }
