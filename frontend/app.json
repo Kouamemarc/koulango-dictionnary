@@ -9,14 +9,28 @@
     "splash": {
       "backgroundColor": "#0F766E"
     },
-    "assetBundlePatterns": ["**/*"],
-    "ios": { "supportsTablet": true, "bundleIdentifier": "dev.koulango.dictionary" },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.koulango.dictionary"
+    },
     "android": {
       "package": "dev.koulango.dictionary",
-      "adaptiveIcon": { "backgroundColor": "#0F766E" }
+      "adaptiveIcon": {
+        "backgroundColor": "#0F766E"
+      }
     },
     "extra": {
-      "apiUrl": "https://koulango-dictionnary.onrender.com/api/v1"
-    }
+      "apiUrl": "https://koulango-dictionnary.onrender.com/api/v1",
+      "eas": {
+        "projectId": "1fa20847-7a99-42cf-8056-ac6f3a07a02b"
+      }
+    },
+    "owner": "marcbkm",
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

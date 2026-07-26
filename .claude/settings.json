@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(python -c \"import sys; print\\(sys.prefix\\)\")",
-      "Bash(python -m venv .venv)"
+      "Bash(python -m venv .venv)",
+      "Bash(npx expo-doctor *)"
     ]
   }
 }

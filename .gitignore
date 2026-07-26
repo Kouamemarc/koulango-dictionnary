@@ -7,3 +7,7 @@ node_modules/
 dist/
 *.log
 pgdata/
+frontend/credentials/
+frontend/credentials.json
+*.keystore
+*.jks
