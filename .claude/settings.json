@@ -10,7 +10,15 @@
       "Bash(echo \"EXIT:$?\")",
       "Bash(npx eas *)",
       "Bash(curl -sL -o /tmp/eas_artifact.bin \"https://expo.dev/artifacts/eas/sGQu9PPWQzOTHKeqXZeJd3mi-KpdbFI_Sp1yY51Wl5g.tar.gz\")",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(\".venv/Scripts/python.exe\" -m alembic upgrade head)",
+      "Bash(npx tsc *)",
+      "Bash(netstat -ano)",
+      "Bash(awk '{print $5}')",
+      "Bash(powershell -NoProfile -Command \"Stop-Process -Id 31388 -Force -ErrorAction SilentlyContinue\")",
+      "Bash(rm -f src/App.css src/assets/hero.png src/assets/react.svg)",
+      "Bash(rmdir src/assets)",
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*vite*5183*'\\\\'' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }')"
     ]
   }
 }
