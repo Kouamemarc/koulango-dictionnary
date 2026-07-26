@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import get_optional_user
 from app.application.services.word_service import WordService
 from app.core.database import get_db
 from app.infrastructure.models import User
@@ -29,12 +29,13 @@ def smart_check(
 def propose(
     data: WordCreate,
     svc: WordService = Depends(_service),
-    user: User = Depends(get_current_user),
+    user: User | None = Depends(get_optional_user),
 ):
     """Enregistre le mot au statut EN_ATTENTE_VALIDATION.
 
-    Si des variantes proches existent et `force_create` est false, renvoie 409
-    avec la liste des suggestions à confirmer.
+    Accessible sans compte : la contribution est anonyme sauf si l'appelant
+    est authentifié. Si des variantes proches existent et `force_create` est
+    false, renvoie 409 avec la liste des suggestions à confirmer.
     """
     contribution = svc.propose_word(data, user)
     word = WordRepository(svc.words.db).get(contribution.word_id)

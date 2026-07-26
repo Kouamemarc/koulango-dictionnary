@@ -48,7 +48,7 @@ class WordService:
             msg = "Le mot n'existe pas. Vous pouvez le proposer."
         return SmartCheckResponse(exists=False, message=msg, suggestions=suggestions)
 
-    def propose_word(self, data: WordCreate, author: User) -> Contribution:
+    def propose_word(self, data: WordCreate, author: User | None) -> Contribution:
         """Crée un mot au statut EN_ATTENTE_VALIDATION + une contribution associée.
 
         Si des variantes proches existent et que force_create est False, on
@@ -83,7 +83,7 @@ class WordService:
             en_translation=data.en_translation,
             source=data.source,
             dialect_id=data.dialect_id,
-            created_by=author.id,
+            created_by=author.id if author else None,
             status=WordStatus.PENDING,
         )
         # Sous-entités facultatives du formulaire
@@ -97,7 +97,7 @@ class WordService:
             word.audios.append(Audio(url=data.audio_url))
 
         contribution = Contribution(
-            author_id=author.id,
+            author_id=author.id if author else None,
             word_id=word.id,
             type=ContributionType.CREATE,
             payload=json.dumps(data.model_dump(), ensure_ascii=False),

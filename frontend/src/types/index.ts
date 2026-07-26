@@ -1,27 +1,10 @@
 /** Types partagés avec l'API backend. */
 
-export type UserRole = "utilisateur" | "moderateur" | "administrateur";
-
 export type WordStatus =
   | "EN_ATTENTE_VALIDATION"
   | "PUBLIE"
   | "REFUSE"
   | "FUSIONNE";
-
-export interface User {
-  id: number;
-  email: string;
-  username: string;
-  full_name?: string | null;
-  role: UserRole;
-  is_active: boolean;
-}
-
-export interface TokenPair {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-}
 
 export interface WordSummary {
   id: number;

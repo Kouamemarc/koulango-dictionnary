@@ -189,13 +189,13 @@ class Contribution(Base, TimestampMixin):
     __tablename__ = "contributions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    author_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    author_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     word_id: Mapped[int | None] = mapped_column(ForeignKey("words.id", ondelete="SET NULL"))
     type: Mapped[ContributionType] = mapped_column(Enum(ContributionType), default=ContributionType.CREATE)
     payload: Mapped[str | None] = mapped_column(Text)  # snapshot JSON de la proposition
     status: Mapped[WordStatus] = mapped_column(Enum(WordStatus), default=WordStatus.PENDING, index=True)
 
-    author: Mapped["User"] = relationship(back_populates="contributions")
+    author: Mapped["User | None"] = relationship(back_populates="contributions")
     validation: Mapped["Validation"] = relationship(
         back_populates="contribution", uselist=False, cascade="all, delete-orphan"
     )

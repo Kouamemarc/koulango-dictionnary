@@ -1,8 +1,7 @@
-/** Client axios avec injection du token JWT et rafraîchissement automatique. */
+/** Client axios de l'app (aucune authentification : usage 100% anonyme). */
 import axios from "axios";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
-import * as SecureStore from "expo-secure-store";
 
 /**
  * En dev, "localhost" ne fonctionne pas depuis un émulateur/téléphone Android
@@ -24,42 +23,6 @@ function resolveApiUrl(): string {
 
 const API_URL = resolveApiUrl();
 
-export const ACCESS_KEY = "koulango.access";
-export const REFRESH_KEY = "koulango.refresh";
-
-export const api = axios.create({ baseURL: API_URL, timeout: 10000 });
-
-// Injecte le token d'accès dans chaque requête
-api.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync(ACCESS_KEY);
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-// Rafraîchit le token en cas de 401 (une seule tentative)
-let refreshing = false;
-api.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    const original = error.config;
-    if (error.response?.status === 401 && !original._retry && !refreshing) {
-      original._retry = true;
-      refreshing = true;
-      try {
-        const refresh = await SecureStore.getItemAsync(REFRESH_KEY);
-        if (refresh) {
-          const { data } = await axios.post(`${API_URL}/auth/refresh`, {
-            refresh_token: refresh,
-          });
-          await SecureStore.setItemAsync(ACCESS_KEY, data.access_token);
-          await SecureStore.setItemAsync(REFRESH_KEY, data.refresh_token);
-          original.headers.Authorization = `Bearer ${data.access_token}`;
-          return api(original);
-        }
-      } finally {
-        refreshing = false;
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+// Render (plan gratuit) met le service en veille après inactivité : le réveil
+// du conteneur peut prendre 30-40s, d'où un timeout généreux plutôt que 10s.
+export const api = axios.create({ baseURL: API_URL, timeout: 45000 });

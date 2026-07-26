@@ -12,6 +12,9 @@ from app.infrastructure.models import User
 from app.infrastructure.repositories.user_repository import UserRepository
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_PREFIX}/auth/login")
+optional_oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_PREFIX}/auth/login", auto_error=False
+)
 
 
 def get_current_user(
@@ -34,6 +37,26 @@ def get_current_user(
     if not user or not user.is_active:
         raise creds_error
     return user
+
+
+def get_optional_user(
+    token: str | None = Depends(optional_oauth2_scheme), db: Session = Depends(get_db)
+) -> User | None:
+    """Comme get_current_user, mais renvoie None au lieu de lever 401 sans jeton.
+
+    Utilisé pour les routes publiques (ex: contribution anonyme) qui restent
+    toutefois capables d'attribuer la contribution si l'appelant est connecté.
+    """
+    if not token:
+        return None
+    try:
+        payload = decode_token(token)
+        if payload.get("type") != "access":
+            return None
+        user = UserRepository(db).get(int(payload["sub"]))
+    except (jwt.PyJWTError, KeyError, ValueError):
+        return None
+    return user if user and user.is_active else None
 
 
 # --- Hiérarchie des rôles (un admin a tous les droits d'un modérateur, etc.) ---

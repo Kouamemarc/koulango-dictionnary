@@ -10,7 +10,9 @@ class AdminService:
     def __init__(self, db):
         self.db = db
 
-    def _notify(self, user_id: int, title: str, body: str) -> None:
+    def _notify(self, user_id: int | None, title: str, body: str) -> None:
+        if user_id is None:
+            return
         self.db.add(Notification(user_id=user_id, title=title, body=body))
 
     def review_contribution(self, contribution_id: int, req: ValidationRequest, moderator_id: int) -> Contribution:

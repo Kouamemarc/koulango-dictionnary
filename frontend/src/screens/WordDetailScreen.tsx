@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Audio } from "expo-av";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Card, Loading } from "@/components/UI";
-import { MeApi, WordsApi } from "@/api/endpoints";
+import { WordsApi } from "@/api/endpoints";
 import { colors, font, spacing } from "@/theme";
 import type { Definition, Example } from "@/types";
 
@@ -61,10 +61,6 @@ export default function WordDetailScreen({ route }: any) {
       )}
 
       {word.source ? <Text style={styles.source}>Source : {word.source}</Text> : null}
-
-      <View style={{ height: spacing.md }} />
-      <Button title="★  Ajouter aux favoris"
-        onPress={() => MeApi.addFavorite(word.id)} />
     </ScrollView>
   );
 }
