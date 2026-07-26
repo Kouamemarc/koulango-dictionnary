@@ -37,7 +37,16 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://koulango-dictionnary-1.onrender.com/)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://koulango-dictionnary-1.onrender.com/words)",
       "Bash(curl -s https://koulango-dictionnary-1.onrender.com/)",
-      "Bash(curl -s \"https://koulango-dictionnary-1.onrender.com/assets/index-Dg3I10-P.js\")"
+      "Bash(curl -s \"https://koulango-dictionnary-1.onrender.com/assets/index-Dg3I10-P.js\")",
+      "Bash(curl -sL -o app.tar.gz \"https://expo.dev/artifacts/eas/yykQQbD0pvMR1pms6QYTuKHU6GM2cs5iwZPEg3yIGgw.tar.gz\")",
+      "Bash(\".venv/Scripts/python.exe\" -m uvicorn app.main:app --port 8007)",
+      "Bash(curl -s \"http://127.0.0.1:8007/api/v1/words/search?q=eau&lang=francais\")",
+      "Bash(curl -s \"http://127.0.0.1:8007/api/v1/words/search?q=kolongo&lang=koulango\")",
+      "Bash(kill %1)",
+      "Bash(\".venv/Scripts/python.exe\" -m uvicorn app.main:app --port 8008)",
+      "Bash(curl -s \"http://127.0.0.1:8008/api/v1/words/search?q=maison&lang=francais\")",
+      "Bash(curl -s \"http://127.0.0.1:8008/api/v1/words/search?q=yogo&lang=koulango\")",
+      "Bash(curl -s \"https://koulango-dictionnary.onrender.com/api/v1/words/search?q=maison&lang=francais\")"
     ]
   }
 }
