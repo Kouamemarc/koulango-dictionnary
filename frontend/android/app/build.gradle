@@ -111,6 +111,7 @@ android {
 
     namespace 'dev.koulango.dictionary'
     defaultConfig {
+        ndk { abiFilters "arm64-v8a", "armeabi-v7a" }
         applicationId 'dev.koulango.dictionary'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion

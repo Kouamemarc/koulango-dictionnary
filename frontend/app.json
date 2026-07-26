@@ -43,7 +43,8 @@
         {
           "photosPermission": "Permet de choisir une image pour illustrer un mot du dictionnaire."
         }
-      ]
+      ],
+      "./plugins/withReactNativeArchitectures"
     ]
   }
 }
