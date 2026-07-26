@@ -72,6 +72,7 @@ class Word(Base, TimestampMixin):
     fr_translation: Mapped[str | None] = mapped_column(String(500))
     en_translation: Mapped[str | None] = mapped_column(String(500))
     source: Mapped[str | None] = mapped_column(String(500))
+    image_url: Mapped[str | None] = mapped_column(String(1000))
     status: Mapped[WordStatus] = mapped_column(
         Enum(WordStatus), default=WordStatus.PENDING, index=True, nullable=False
     )

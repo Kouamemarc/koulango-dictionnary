@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Audio } from "expo-av";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Card, Loading } from "@/components/UI";
@@ -23,6 +23,7 @@ export default function WordDetailScreen({ route }: any) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing.md }}>
+      {word.image_url ? <Image source={{ uri: word.image_url }} style={styles.image} /> : null}
       <Text style={styles.term}>{word.term}</Text>
       {word.pronunciations[0]?.ipa ? (
         <Text style={styles.ipa}>/{word.pronunciations[0].ipa}/</Text>
@@ -76,6 +77,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
+  image: { width: "100%", height: 200, borderRadius: 16, marginBottom: spacing.md, backgroundColor: colors.border },
   term: { fontSize: font.h1, fontWeight: "800", color: colors.text },
   ipa: { fontSize: font.body, color: colors.textMuted, marginTop: 2 },
   badges: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: spacing.md },

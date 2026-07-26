@@ -56,6 +56,7 @@ class WordCreate(BaseModel):
     dialect_id: int | None = None
     pronunciation: str | None = None
     audio_url: str | None = None
+    image_url: str | None = None
     source: str | None = None
     # Si l'utilisateur a confirmé qu'il s'agit d'un nouveau mot malgré les suggestions
     force_create: bool = False
@@ -65,6 +66,7 @@ class WordSummary(BaseModel):
     id: int
     term: str
     fr_translation: str | None
+    image_url: str | None = None
     status: WordStatus
     model_config = {"from_attributes": True}
 
@@ -75,6 +77,7 @@ class WordDetail(BaseModel):
     fr_translation: str | None
     en_translation: str | None
     source: str | None
+    image_url: str | None
     status: WordStatus
     dialect_id: int | None
     definitions: list[DefinitionOut] = []

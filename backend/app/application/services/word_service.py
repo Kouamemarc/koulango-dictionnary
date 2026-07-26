@@ -82,6 +82,7 @@ class WordService:
             fr_translation=data.fr_translation,
             en_translation=data.en_translation,
             source=data.source,
+            image_url=data.image_url,
             dialect_id=data.dialect_id,
             created_by=author.id if author else None,
             status=WordStatus.PENDING,

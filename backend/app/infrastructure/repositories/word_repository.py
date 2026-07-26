@@ -105,6 +105,17 @@ class WordRepository:
         ).all()
         return [SuggestionRow(word_id=r.id, term=r.term, similarity=float(r.sim), distance=int(r.dist)) for r in rows]
 
+    def list_alphabetical(self, limit: int = 200, offset: int = 0) -> Sequence[Word]:
+        """Mots publiés triés alphabétiquement (écran d'accueil)."""
+        stmt = (
+            select(Word)
+            .where(Word.status == WordStatus.PUBLISHED)
+            .order_by(Word.normalized.asc())
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(self.db.scalars(stmt))
+
     def list_by_status(self, status: WordStatus, limit: int = 50, offset: int = 0) -> Sequence[Word]:
         stmt = (
             select(Word)

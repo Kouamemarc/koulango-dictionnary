@@ -9,6 +9,16 @@ from app.schemas.word import WordDetail, WordSummary
 router = APIRouter(prefix="/words", tags=["Mots"])
 
 
+@router.get("", response_model=list[WordSummary], summary="Liste alphabétique des mots publiés")
+def list_words(
+    limit: int = Query(200, le=500),
+    offset: int = 0,
+    db: Session = Depends(get_db),
+):
+    """Tous les mots publiés, triés par ordre alphabétique — pour l'écran d'accueil."""
+    return WordRepository(db).list_alphabetical(limit, offset)
+
+
 @router.get("/search", response_model=list[WordSummary], summary="Recherche instantanée")
 def search(
     q: str = Query(min_length=1, description="Terme recherché"),

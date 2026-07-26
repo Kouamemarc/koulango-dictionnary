@@ -62,6 +62,7 @@ export default function AddWordScreen({ navigation }: any) {
       <Field label="Exemple" value={form.example} onChangeText={set("example")} multiline />
       <Field label="Prononciation" value={form.pronunciation} onChangeText={set("pronunciation")} />
       <Field label="URL audio" value={form.audio_url} onChangeText={set("audio_url")} autoCapitalize="none" />
+      <Field label="URL image (illustration)" value={form.image_url} onChangeText={set("image_url")} autoCapitalize="none" />
       <Field label="Source" value={form.source} onChangeText={set("source")} />
       <Button title="Vérifier et proposer" onPress={handleCheck} loading={loading} />
 

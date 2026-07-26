@@ -10,6 +10,7 @@ export interface WordSummary {
   id: number;
   term: string;
   fr_translation?: string | null;
+  image_url?: string | null;
   status: WordStatus;
 }
 
@@ -24,6 +25,7 @@ export interface WordDetail {
   fr_translation?: string | null;
   en_translation?: string | null;
   source?: string | null;
+  image_url?: string | null;
   status: WordStatus;
   dialect_id?: number | null;
   definitions: Definition[];
@@ -55,6 +57,7 @@ export interface WordCreate {
   dialect_id?: number;
   pronunciation?: string;
   audio_url?: string;
+  image_url?: string;
   source?: string;
   force_create?: boolean;
 }

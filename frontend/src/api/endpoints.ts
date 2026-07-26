@@ -3,6 +3,7 @@ import { api } from "./client";
 import type { SmartCheckResponse, WordCreate, WordDetail, WordSummary } from "@/types";
 
 export const WordsApi = {
+  list: () => api.get<WordSummary[]>("/words").then((r) => r.data),
   search: (q: string) =>
     api.get<WordSummary[]>("/words/search", { params: { q } }).then((r) => r.data),
   detail: (id: number) => api.get<WordDetail>(`/words/${id}`).then((r) => r.data),
