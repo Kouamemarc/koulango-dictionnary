@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button, Card, Loading } from "@/components/UI";
 import { MeApi, WordsApi } from "@/api/endpoints";
 import { colors, font, spacing } from "@/theme";
+import type { Definition, Example } from "@/types";
 
 export default function WordDetailScreen({ route }: any) {
   const { id } = route.params;
@@ -39,7 +40,7 @@ export default function WordDetailScreen({ route }: any) {
 
       {word.definitions.length > 0 && (
         <Section title="Définitions">
-          {word.definitions.map((d) => (
+          {word.definitions.map((d: Definition) => (
             <Card key={d.id}>
               <Text style={styles.body}>{d.text}</Text>
               {d.part_of_speech ? <Text style={styles.pos}>{d.part_of_speech}</Text> : null}
@@ -50,7 +51,7 @@ export default function WordDetailScreen({ route }: any) {
 
       {word.examples.length > 0 && (
         <Section title="Exemples">
-          {word.examples.map((e) => (
+          {word.examples.map((e: Example) => (
             <Card key={e.id}>
               <Text style={styles.body}>{e.sentence}</Text>
               {e.translation ? <Text style={styles.pos}>{e.translation}</Text> : null}
