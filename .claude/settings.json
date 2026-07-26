@@ -20,7 +20,9 @@
       "Bash(rmdir src/assets)",
       "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*vite*5183*'\\\\'' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }')",
       "Bash(.venv/Scripts/python.exe -c ' *)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://koulango-dictionnary.onrender.com/api/v1/words)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://koulango-dictionnary.onrender.com/api/v1/words)",
+      "Bash(npx expo *)",
+      "Bash(npm install *)"
     ]
   }
 }
