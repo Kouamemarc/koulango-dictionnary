@@ -70,7 +70,9 @@ export default function WordDetailScreen({ route }: any) {
                 <Ionicons name="volume-medium-outline" size={20} color={hasAudio ? colors.primary : colors.border} />
               </TouchableOpacity>
             </View>
-            {firstExample ? <Text style={styles.note}>{firstExample.sentence}</Text> : null}
+            {firstExample ? (
+              <HighlightedSentence sentence={firstExample.sentence} term={word.term} style={styles.note} />
+            ) : null}
           </>
         ) : null}
 
@@ -83,7 +85,7 @@ export default function WordDetailScreen({ route }: any) {
           </TouchableOpacity>
           {hasMore && (
             <TouchableOpacity style={styles.moreButton} onPress={() => setShowMore((v) => !v)}>
-              <Text style={styles.moreText}>{showMore ? "Voir moins" : "Voir plus d'exemples"}</Text>
+              <Text style={styles.moreText}>{showMore ? "Voir moins" : "Voir plus"}</Text>
               <Ionicons name={showMore ? "chevron-up" : "chevron-forward"} size={14} color={colors.primaryDark} />
             </TouchableOpacity>
           )}
@@ -92,24 +94,47 @@ export default function WordDetailScreen({ route }: any) {
 
       {showMore && (
         <>
-          {word.definitions.slice(1).map((d: Definition) => (
-            <Card key={d.id}>
-              <Text style={styles.definition}>{d.text}</Text>
-              {d.part_of_speech ? <Text style={styles.pos}>({d.part_of_speech})</Text> : null}
-            </Card>
-          ))}
-          {word.examples.slice(1).map((e: Example) => (
-            <Card key={e.id}>
-              <Text style={styles.note}>{e.sentence}</Text>
-              {e.translation ? <Text style={styles.pos}>{e.translation}</Text> : null}
-            </Card>
-          ))}
+          {word.definitions.length > 1 && (
+            <View style={styles.moreSection}>
+              <Text style={styles.moreSectionTitle}>Autres traductions</Text>
+              {word.definitions.slice(1).map((d: Definition) => (
+                <Card key={d.id}>
+                  <Text style={styles.definition}>{d.text}</Text>
+                  {d.part_of_speech ? <Text style={styles.pos}>({d.part_of_speech})</Text> : null}
+                </Card>
+              ))}
+            </View>
+          )}
+          {word.examples.length > 1 && (
+            <View style={styles.moreSection}>
+              <Text style={styles.moreSectionTitle}>Autres exemples</Text>
+              {word.examples.slice(1).map((e: Example) => (
+                <Card key={e.id}>
+                  <HighlightedSentence sentence={e.sentence} term={word.term} style={styles.definition} />
+                  {e.translation ? <Text style={styles.pos}>{e.translation}</Text> : null}
+                </Card>
+              ))}
+            </View>
+          )}
         </>
       )}
 
       {word.en_translation ? <Text style={styles.source}>EN · {word.en_translation}</Text> : null}
       {word.source ? <Text style={styles.source}>Source : {word.source}</Text> : null}
     </ScrollView>
+  );
+}
+
+/** Affiche une phrase d'exemple en surlignant l'occurrence du mot/expression. */
+function HighlightedSentence({ sentence, term, style }: { sentence: string; term: string; style: object }) {
+  const idx = sentence.toLowerCase().indexOf(term.toLowerCase());
+  if (idx === -1) return <Text style={style}>{sentence}</Text>;
+  return (
+    <Text style={style}>
+      {sentence.slice(0, idx)}
+      <Text style={styles.highlight}>{sentence.slice(idx, idx + term.length)}</Text>
+      {sentence.slice(idx + term.length)}
+    </Text>
   );
 }
 
@@ -124,6 +149,9 @@ const styles = StyleSheet.create({
   secondary: { fontSize: font.body, color: colors.text, flex: 1 },
   secondaryLabel: { fontWeight: "700", color: colors.accent },
   note: { fontSize: font.small, color: colors.textMuted, fontStyle: "italic", marginTop: 4 },
+  highlight: { color: colors.accent, fontWeight: "700" },
+  moreSection: { marginTop: spacing.md },
+  moreSectionTitle: { fontSize: font.small, fontWeight: "700", color: colors.textMuted, marginBottom: spacing.xs },
   footerRow: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     marginTop: spacing.md,
