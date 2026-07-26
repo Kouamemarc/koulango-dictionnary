@@ -1,10 +1,26 @@
 /** Client axios avec injection du token JWT et rafraîchissement automatique. */
 import axios from "axios";
 import Constants from "expo-constants";
+import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
-const API_URL =
-  (Constants.expoConfig?.extra?.apiUrl as string) ?? "http://localhost:8000/api/v1";
+/**
+ * "localhost" ne fonctionne pas depuis un émulateur/téléphone Android (il pointe
+ * vers l'appareil lui-même). On dérive donc l'IP du PC depuis l'hôte utilisé par
+ * Expo pour servir le bundle (hostUri), avec repli sur 10.0.2.2 (alias émulateur).
+ */
+function resolveApiUrl(): string {
+  const configured = Constants.expoConfig?.extra?.apiUrl as string | undefined;
+  if (configured && !configured.includes("localhost")) return configured;
+  if (Platform.OS === "web") return configured ?? "http://localhost:8000/api/v1";
+
+  const host = Constants.expoConfig?.hostUri?.split(":")[0];
+  if (host) return `http://${host}:8000/api/v1`;
+
+  return Platform.OS === "android" ? "http://10.0.2.2:8000/api/v1" : "http://localhost:8000/api/v1";
+}
+
+const API_URL = resolveApiUrl();
 
 export const ACCESS_KEY = "koulango.access";
 export const REFRESH_KEY = "koulango.refresh";
