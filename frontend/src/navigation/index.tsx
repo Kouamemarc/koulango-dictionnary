@@ -36,7 +36,11 @@ function Tabs() {
       <Tab.Screen name="Favoris" component={FavoritesScreen}
         options={{ tabBarIcon: ({ color, size }) => <Ionicons name="heart-outline" color={color} size={size} /> }} />
       <Tab.Screen name="Contribuer" component={AddWordScreen}
-        options={{ tabBarIcon: ({ color, size }) => <Ionicons name="add-circle-outline" color={color} size={size} /> }} />
+        options={{
+          title: "Proposition de mot ou expression",
+          tabBarLabel: "Contribuer",
+          tabBarIcon: ({ color, size }) => <Ionicons name="add-circle-outline" color={color} size={size} />,
+        }} />
       <Tab.Screen name="Historique" component={HistoryScreen}
         options={{ tabBarIcon: ({ color, size }) => <Ionicons name="time-outline" color={color} size={size} /> }} />
     </Tab.Navigator>

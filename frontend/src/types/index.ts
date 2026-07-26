@@ -55,7 +55,6 @@ export interface SmartCheckResponse {
 
 export interface WordCreate {
   term: string;
-  expression?: string;
   fr_translation?: string;
   en_translation?: string;
   definition?: string;

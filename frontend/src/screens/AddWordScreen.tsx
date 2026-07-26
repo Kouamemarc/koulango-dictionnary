@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import { Alert, Image, Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Button, Field } from "@/components/UI";
 import { ContributionsApi, MediaApi } from "@/api/endpoints";
 import type { Suggestion, WordCreate } from "@/types";
 import { colors, font, radius, spacing } from "@/theme";
 
+type EntryType = "mot" | "expression";
+
 export default function AddWordScreen({ navigation }: any) {
+  const [entryType, setEntryType] = useState<EntryType>("mot");
   const [form, setForm] = useState<WordCreate>({ term: "" });
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -45,12 +48,12 @@ export default function AddWordScreen({ navigation }: any) {
 
   /** Étape 1 : vérification intelligente avant l'enregistrement. */
   const handleCheck = async () => {
-    if (!form.term.trim()) return Alert.alert("Le mot est requis.");
+    if (!form.term.trim()) return Alert.alert(entryType === "mot" ? "Le mot est requis." : "L'expression est requise.");
     setLoading(true);
     try {
       const res = await ContributionsApi.check(form.term);
       if (res.exists) {
-        return Alert.alert("Mot déjà présent", res.message);
+        return Alert.alert("Déjà présent", res.message);
       }
       if (res.suggestions.length > 0) {
         setSuggestions(res.suggestions);
@@ -72,7 +75,7 @@ export default function AddWordScreen({ navigation }: any) {
       await ContributionsApi.propose({ ...form, force_create: force });
       Alert.alert(
         "Merci !",
-        "Votre proposition a été enregistrée et sera examinée par un administrateur.",
+        "Mot ou expression proposé avec succès, ce sera vérifié et validé, merci pour votre contribution ❤️",
         [{ text: "OK", onPress: () => navigation.goBack() }]
       );
     } catch (e: any) {
@@ -84,10 +87,29 @@ export default function AddWordScreen({ navigation }: any) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing.md }}>
-      <Field label="Mot *" value={form.term} onChangeText={set("term")} autoFocus />
-      <Field label="Expression" value={form.expression} onChangeText={set("expression")} />
+      <View style={styles.typeRow}>
+        <TouchableOpacity
+          style={[styles.typeBtn, entryType === "mot" && styles.typeBtnActive]}
+          onPress={() => setEntryType("mot")}
+        >
+          <Text style={[styles.typeText, entryType === "mot" && styles.typeTextActive]}>Mot</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.typeBtn, entryType === "expression" && styles.typeBtnActive]}
+          onPress={() => setEntryType("expression")}
+        >
+          <Text style={[styles.typeText, entryType === "expression" && styles.typeTextActive]}>Expression</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Field
+        label={entryType === "mot" ? "Mot *" : "Expression *"}
+        placeholder={entryType === "mot" ? "Ex : bonjour" : "Ex : comment ça va ?"}
+        value={form.term}
+        onChangeText={set("term")}
+        autoFocus
+      />
       <Field label="Traduction française" value={form.fr_translation} onChangeText={set("fr_translation")} />
-      <Field label="Traduction anglaise" value={form.en_translation} onChangeText={set("en_translation")} />
       <Field label="Définition" value={form.definition} onChangeText={set("definition")} multiline />
       <Field label="Exemple" value={form.example} onChangeText={set("example")} multiline />
       <Field label="Prononciation" value={form.pronunciation} onChangeText={set("pronunciation")} />
@@ -105,7 +127,9 @@ export default function AddWordScreen({ navigation }: any) {
       </View>
 
       <Field label="Source" value={form.source} onChangeText={set("source")} />
-      <Button title="Vérifier et proposer" onPress={handleCheck} loading={loading} disabled={uploadingImage} />
+      <Field label="Traduction anglaise" value={form.en_translation} onChangeText={set("en_translation")} />
+
+      <Button title="Proposer" onPress={handleCheck} loading={loading} disabled={uploadingImage} />
 
       {/* Modale de la recherche intelligente */}
       <Modal visible={showModal} transparent animationType="fade">
@@ -136,6 +160,14 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   label: { fontSize: font.small, color: colors.textMuted, marginBottom: 6, fontWeight: "500" },
   preview: { width: 120, height: 120, borderRadius: radius.md, backgroundColor: colors.border, marginBottom: spacing.sm },
+  typeRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
+  typeBtn: {
+    flex: 1, alignItems: "center", paddingVertical: 10, borderRadius: radius.full,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface,
+  },
+  typeBtnActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  typeText: { fontSize: font.small, fontWeight: "600", color: colors.textMuted },
+  typeTextActive: { color: "#fff" },
   backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", padding: spacing.lg },
   sheet: { backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg },
   modalTitle: { fontSize: font.h3, fontWeight: "700", color: colors.text },

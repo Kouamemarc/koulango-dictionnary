@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Audio } from "expo-av";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Card, Loading } from "@/components/UI";
+import { Card, Loading } from "@/components/UI";
 import { WordsApi } from "@/api/endpoints";
 import { useFavorites } from "@/store/favorites";
 import { useHistory } from "@/store/history";
@@ -12,6 +12,7 @@ import type { Definition, Example } from "@/types";
 
 export default function WordDetailScreen({ route }: any) {
   const { id } = route.params;
+  const [showMore, setShowMore] = useState(false);
   const { data: word, isLoading } = useQuery({
     queryKey: ["word", id],
     queryFn: () => WordsApi.detail(id),
@@ -27,88 +28,107 @@ export default function WordDetailScreen({ route }: any) {
     }
   }, [word]);
 
-  const playAudio = async (url: string) => {
-    const { sound } = await Audio.Sound.createAsync({ uri: url });
+  const playAudio = async () => {
+    if (!word?.audios.length) return;
+    const { sound } = await Audio.Sound.createAsync({ uri: word.audios[0].url });
     await sound.playAsync();
   };
 
   if (isLoading || !word) return <Loading />;
 
+  const hasAudio = word.audios.length > 0;
+  const firstDefinition = word.definitions[0];
+  const firstExample = word.examples[0];
+  const hasMore = word.definitions.length > 1 || word.examples.length > 1;
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing.md }}>
       {word.image_url ? <Image source={{ uri: word.image_url }} style={styles.image} /> : null}
-      <View style={styles.titleRow}>
-        <Text style={styles.term}>{word.term}</Text>
-        <TouchableOpacity
-          onPress={() => toggleFavorite({ id: word.id, term: word.term, fr_translation: word.fr_translation, image_url: word.image_url, status: word.status })}
-          hitSlop={8}
-        >
-          <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={28} color={colors.favorite} />
-        </TouchableOpacity>
-      </View>
-      {word.pronunciations[0]?.ipa ? (
-        <Text style={styles.ipa}>/{word.pronunciations[0].ipa}/</Text>
-      ) : null}
 
-      <View style={styles.badges}>
-        {word.fr_translation ? <Text style={styles.badgeFr}>FR · {word.fr_translation}</Text> : null}
-        {word.en_translation ? <Text style={styles.badgeEn}>EN · {word.en_translation}</Text> : null}
-      </View>
+      <Card>
+        <View style={styles.row}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headline}>{word.term}</Text>
+            {firstDefinition?.part_of_speech ? <Text style={styles.pos}>({firstDefinition.part_of_speech})</Text> : null}
+          </View>
+          <TouchableOpacity onPress={playAudio} disabled={!hasAudio} hitSlop={8}>
+            <Ionicons name="volume-medium-outline" size={22} color={hasAudio ? colors.primary : colors.border} />
+          </TouchableOpacity>
+        </View>
 
-      <Button
-        title="▶  Écouter la prononciation"
-        variant="ghost"
-        disabled={word.audios.length === 0}
-        onPress={() => playAudio(word.audios[0].url)}
-      />
+        {firstDefinition ? <Text style={styles.definition}>{firstDefinition.text}</Text> : null}
 
-      {word.definitions.length > 0 && (
-        <Section title="Définitions">
-          {word.definitions.map((d: Definition) => (
+        {word.fr_translation ? (
+          <>
+            <View style={styles.divider} />
+            <View style={styles.row}>
+              <Text style={styles.secondary}>
+                <Text style={styles.secondaryLabel}>Français : </Text>
+                {word.fr_translation}
+              </Text>
+              <TouchableOpacity onPress={playAudio} disabled={!hasAudio} hitSlop={8}>
+                <Ionicons name="volume-medium-outline" size={20} color={hasAudio ? colors.primary : colors.border} />
+              </TouchableOpacity>
+            </View>
+            {firstExample ? <Text style={styles.note}>{firstExample.sentence}</Text> : null}
+          </>
+        ) : null}
+
+        <View style={styles.footerRow}>
+          <TouchableOpacity
+            onPress={() => toggleFavorite({ id: word.id, term: word.term, fr_translation: word.fr_translation, image_url: word.image_url, status: word.status })}
+            hitSlop={8}
+          >
+            <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={24} color={colors.favorite} />
+          </TouchableOpacity>
+          {hasMore && (
+            <TouchableOpacity style={styles.moreButton} onPress={() => setShowMore((v) => !v)}>
+              <Text style={styles.moreText}>{showMore ? "Voir moins" : "Voir plus d'exemples"}</Text>
+              <Ionicons name={showMore ? "chevron-up" : "chevron-forward"} size={14} color={colors.primaryDark} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </Card>
+
+      {showMore && (
+        <>
+          {word.definitions.slice(1).map((d: Definition) => (
             <Card key={d.id}>
-              <Text style={styles.body}>{d.text}</Text>
-              {d.part_of_speech ? <Text style={styles.pos}>{d.part_of_speech}</Text> : null}
+              <Text style={styles.definition}>{d.text}</Text>
+              {d.part_of_speech ? <Text style={styles.pos}>({d.part_of_speech})</Text> : null}
             </Card>
           ))}
-        </Section>
-      )}
-
-      {word.examples.length > 0 && (
-        <Section title="Exemples">
-          {word.examples.map((e: Example) => (
+          {word.examples.slice(1).map((e: Example) => (
             <Card key={e.id}>
-              <Text style={styles.body}>{e.sentence}</Text>
+              <Text style={styles.note}>{e.sentence}</Text>
               {e.translation ? <Text style={styles.pos}>{e.translation}</Text> : null}
             </Card>
           ))}
-        </Section>
+        </>
       )}
 
+      {word.en_translation ? <Text style={styles.source}>EN · {word.en_translation}</Text> : null}
       {word.source ? <Text style={styles.source}>Source : {word.source}</Text> : null}
     </ScrollView>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <View style={{ marginTop: spacing.lg }}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {children}
-    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   image: { width: "100%", height: 200, borderRadius: 16, marginBottom: spacing.md, backgroundColor: colors.border },
-  titleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  term: { fontSize: font.h1, fontWeight: "800", color: colors.text },
-  ipa: { fontSize: font.body, color: colors.textMuted, marginTop: 2 },
-  badges: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: spacing.md },
-  badgeFr: { backgroundColor: "#DCEEDD", color: colors.primaryDark, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, fontSize: font.small },
-  badgeEn: { backgroundColor: "#F0E4D3", color: colors.accent, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, fontSize: font.small },
-  sectionTitle: { fontSize: font.h3, fontWeight: "700", color: colors.text, marginBottom: spacing.sm },
-  body: { fontSize: font.body, color: colors.text },
-  pos: { fontSize: font.small, color: colors.textMuted, marginTop: 4, fontStyle: "italic" },
-  source: { fontSize: font.tiny, color: colors.textMuted, marginTop: spacing.lg },
+  row: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  headline: { fontSize: font.h1, fontWeight: "800", color: colors.primaryDark },
+  pos: { fontSize: font.small, color: colors.textMuted, fontStyle: "italic", marginTop: 1 },
+  definition: { fontSize: font.body, color: colors.text, marginTop: 4 },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.sm },
+  secondary: { fontSize: font.body, color: colors.text, flex: 1 },
+  secondaryLabel: { fontWeight: "700", color: colors.accent },
+  note: { fontSize: font.small, color: colors.textMuted, fontStyle: "italic", marginTop: 4 },
+  footerRow: {
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    marginTop: spacing.md,
+  },
+  moreButton: { flexDirection: "row", alignItems: "center", gap: 2 },
+  moreText: { fontSize: font.small, fontWeight: "600", color: colors.primaryDark },
+  source: { fontSize: font.tiny, color: colors.textMuted, marginTop: spacing.sm },
 });

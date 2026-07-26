@@ -48,7 +48,6 @@ class AudioOut(AudioIn):
 class WordCreate(BaseModel):
     """Formulaire d'ajout d'un mot (proposition de contribution)."""
     term: str = Field(min_length=1, max_length=255)
-    expression: str | None = None
     fr_translation: str | None = None
     en_translation: str | None = None
     definition: str | None = None
