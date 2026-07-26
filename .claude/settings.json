@@ -50,7 +50,8 @@
       "Bash(curl -sL -o app.tar.gz \"https://expo.dev/artifacts/eas/et30XFgFw1ldgDKU8f55JgMjjbCPKtmOTfjCyFENJ-o.tar.gz\")",
       "Bash(\".venv/Scripts/python.exe\" -m uvicorn app.main:app --port 8009)",
       "Bash(curl -s \"http://127.0.0.1:8009/api/v1/words\")",
-      "Bash(curl -s https://koulango-dictionnary.onrender.com/api/v1/words)"
+      "Bash(curl -s https://koulango-dictionnary.onrender.com/api/v1/words)",
+      "Bash(curl -sL -o app.tar.gz \"https://expo.dev/artifacts/eas/Q0uWUyLAye5APlr63WFyS5eFYyzY4-1XK0GN5Kkcft8.tar.gz\")"
     ]
   }
 }
