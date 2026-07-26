@@ -3,7 +3,11 @@
     "allow": [
       "Bash(python -c \"import sys; print\\(sys.prefix\\)\")",
       "Bash(python -m venv .venv)",
-      "Bash(npx expo-doctor *)"
+      "Bash(npx expo-doctor *)",
+      "Bash(export ANDROID_HOME=\"/c/Users/marcb/AppData/Local/Android/Sdk\")",
+      "Bash(export ANDROID_SDK_ROOT=\"$ANDROID_HOME\")",
+      "Bash(./gradlew assembleRelease --stacktrace)",
+      "Bash(echo \"EXIT:$?\")"
     ]
   }
 }
