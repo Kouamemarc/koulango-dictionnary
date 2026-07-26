@@ -30,7 +30,10 @@
       "Bash(tar -xzf app.tar.gz release/app-release.apk)",
       "Bash(cp release/app-release.apk \"/c/Users/marcb/Downloads/koulango-dictionary.apk\")",
       "Bash(rm -rf app.tar.gz release debug)",
-      "Read(//c/Users/marcb/Downloads/**)"
+      "Read(//c/Users/marcb/Downloads/**)",
+      "Bash(\".venv/Scripts/python.exe\" -m pytest -q)",
+      "Bash(npm run *)",
+      "Bash(curl -s https://koulango-dictionnary.onrender.com/api/v1/openapi.json)"
     ]
   }
 }
