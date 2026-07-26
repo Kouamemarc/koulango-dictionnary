@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { Loading } from "@/components/UI";
@@ -36,6 +36,12 @@ export default function SearchScreen({ navigation }: any) {
           onChangeText={setQ}
           autoFocus
         />
+        <TouchableOpacity
+          hitSlop={8}
+          onPress={() => Alert.alert("Recherche vocale", "Bientôt disponible.")}
+        >
+          <Ionicons name="mic-outline" size={20} color={colors.textMuted} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.toggleRow}>
@@ -60,7 +66,7 @@ export default function SearchScreen({ navigation }: any) {
             </Text>
           ) : null
         }
-        renderItem={({ item }) => <WordListItem item={item} navigation={navigation} />}
+        renderItem={({ item }) => <WordListItem item={item} navigation={navigation} lang={lang} />}
       />
     </View>
   );

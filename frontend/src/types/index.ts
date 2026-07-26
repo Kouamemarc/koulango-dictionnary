@@ -13,6 +13,10 @@ export interface WordSummary {
   term: string;
   fr_translation?: string | null;
   image_url?: string | null;
+  part_of_speech?: string | null;
+  definition?: string | null;
+  example?: string | null;
+  audio_url?: string | null;
   status: WordStatus;
 }
 

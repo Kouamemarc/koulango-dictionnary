@@ -67,6 +67,10 @@ class WordSummary(BaseModel):
     term: str
     fr_translation: str | None
     image_url: str | None = None
+    part_of_speech: str | None = None
+    definition: str | None = None
+    example: str | None = None
+    audio_url: str | None = None
     status: WordStatus
     model_config = {"from_attributes": True}
 

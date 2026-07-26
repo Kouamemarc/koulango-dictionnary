@@ -103,6 +103,24 @@ class Word(Base, TimestampMixin):
         foreign_keys="Synonym.word_id", back_populates="word", cascade="all, delete-orphan"
     )
 
+    # Extraits pour les cartes de résultat (WordSummary), sans requête supplémentaire
+    # si definitions/examples sont préchargées (selectinload) par le repository.
+    @property
+    def part_of_speech(self) -> str | None:
+        return self.definitions[0].part_of_speech if self.definitions else None
+
+    @property
+    def definition(self) -> str | None:
+        return self.definitions[0].text if self.definitions else None
+
+    @property
+    def example(self) -> str | None:
+        return self.examples[0].sentence if self.examples else None
+
+    @property
+    def audio_url(self) -> str | None:
+        return self.audios[0].url if self.audios else None
+
 
 class Expression(Base, TimestampMixin):
     __tablename__ = "expressions"

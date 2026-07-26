@@ -55,10 +55,12 @@ export default function WordDetailScreen({ route }: any) {
         {word.en_translation ? <Text style={styles.badgeEn}>EN · {word.en_translation}</Text> : null}
       </View>
 
-      {word.audios.length > 0 && (
-        <Button title="▶  Écouter la prononciation" variant="ghost"
-          onPress={() => playAudio(word.audios[0].url)} />
-      )}
+      <Button
+        title="▶  Écouter la prononciation"
+        variant="ghost"
+        disabled={word.audios.length === 0}
+        onPress={() => playAudio(word.audios[0].url)}
+      />
 
       {word.definitions.length > 0 && (
         <Section title="Définitions">

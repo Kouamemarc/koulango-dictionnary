@@ -72,6 +72,7 @@ class WordRepository:
         )
         stmt = (
             select(Word)
+            .options(selectinload(Word.definitions), selectinload(Word.examples), selectinload(Word.audios))
             .where(Word.status == WordStatus.PUBLISHED)
             .where(term_match | fr_match)
             .order_by(*order)
@@ -118,6 +119,7 @@ class WordRepository:
         """Mots publiés triés alphabétiquement (écran d'accueil)."""
         stmt = (
             select(Word)
+            .options(selectinload(Word.definitions), selectinload(Word.examples), selectinload(Word.audios))
             .where(Word.status == WordStatus.PUBLISHED)
             .order_by(Word.normalized.asc())
             .limit(limit)
