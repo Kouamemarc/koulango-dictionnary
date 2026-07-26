@@ -63,7 +63,8 @@
       "Bash(rm -f \"/d/Perso/koulango-dictionary/koulango-dictionary/frontend/debug_build.log\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X POST \"https://koulango-dictionnary.onrender.com/api/v1/contributions\" -H \"Content-Type: application/json\" -d '{\"term\":\"deploycheckxyz\",\"expression\":\"should-be-ignored-if-old\",\"force_create\":true}')",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('expression' in d['components']['schemas']['WordCreate']['properties']\\)\")",
-      "Bash(python -c \"import sys,json; [print\\(w\\) for w in json.load\\(sys.stdin\\) if 'deploycheck' in w['term']]\")"
+      "Bash(python -c \"import sys,json; [print\\(w\\) for w in json.load\\(sys.stdin\\) if 'deploycheck' in w['term']]\")",
+      "Bash(curl -sL -o app.tar.gz \"https://expo.dev/artifacts/eas/6Odeo4E_jNtS_3rDBnacTdbJjaJLzozoZ9r7mG56P94.tar.gz\")"
     ]
   }
 }
