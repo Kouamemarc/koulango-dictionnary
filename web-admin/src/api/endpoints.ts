@@ -25,9 +25,13 @@ export const AdminApi = {
 };
 
 export const MediaApi = {
-  upload: (file: File) => {
+  upload: (file: File | Blob, filename = "audio.webm") => {
     const formData = new FormData();
-    formData.append("file", file);
+    if (file instanceof File) {
+      formData.append("file", file);
+    } else {
+      formData.append("file", file, filename);
+    }
     return api
       .post<{ url: string }>("/media", formData, { headers: { "Content-Type": "multipart/form-data" } })
       .then((r) => r.data);

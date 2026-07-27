@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -35,6 +35,9 @@ export default function WordFormPage() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingAudioIndex, setUploadingAudioIndex] = useState<number | null>(null);
+  const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
   const { data: existing, isLoading } = useQuery({
     queryKey: ["word", id],
@@ -126,6 +129,40 @@ export default function WordFormPage() {
     } finally {
       setUploadingAudioIndex(null);
     }
+  };
+
+  const startRecording = async (i: number) => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      chunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        setUploadingAudioIndex(i);
+        try {
+          const { url } = await MediaApi.upload(blob, "prononciation.webm");
+          setForm((f) => ({ ...f, audios: updateAt(f.audios, i, { url }) }));
+        } catch {
+          alert("Envoi de l'enregistrement impossible.");
+        } finally {
+          setUploadingAudioIndex(null);
+        }
+      };
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setRecordingIndex(i);
+    } catch {
+      alert("Impossible d'accéder au micro.");
+    }
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setRecordingIndex(null);
   };
 
   if (isEdit && isLoading) return <AdminLayout title="Modifier un mot"><p>Chargement…</p></AdminLayout>;
@@ -225,7 +262,15 @@ export default function WordFormPage() {
               <input placeholder="URL audio" value={a.url}
                 onChange={(e) => setForm({ ...form, audios: updateAt(form.audios, i, { url: e.target.value }) })} />
               <input type="file" accept="audio/*" onChange={(e) => onAudioFileChange(i, e)}
-                disabled={uploadingAudioIndex === i} />
+                disabled={uploadingAudioIndex === i || recordingIndex !== null} />
+              {recordingIndex === i ? (
+                <button type="button" className="danger" onClick={stopRecording}>⏹ Arrêter</button>
+              ) : (
+                <button type="button" className="ghost" onClick={() => startRecording(i)}
+                  disabled={uploadingAudioIndex !== null || recordingIndex !== null}>
+                  🎙 Enregistrer
+                </button>
+              )}
               <input placeholder="Locuteur" value={a.speaker ?? ""}
                 onChange={(e) => setForm({ ...form, audios: updateAt(form.audios, i, { speaker: e.target.value }) })} />
               <button type="button" className="danger"
@@ -239,7 +284,10 @@ export default function WordFormPage() {
         </div>
 
         {submit.isError && <p className="error">Enregistrement impossible (terme déjà utilisé ?).</p>}
-        <button type="submit" disabled={!form.term.trim() || submit.isPending || uploadingImage}>
+        <button type="submit" disabled={
+          !form.term.trim() || submit.isPending || uploadingImage ||
+          uploadingAudioIndex !== null || recordingIndex !== null
+        }>
           {submit.isPending ? "Enregistrement…" : isEdit ? "Enregistrer les modifications" : "Publier le mot"}
         </button>
       </form>
