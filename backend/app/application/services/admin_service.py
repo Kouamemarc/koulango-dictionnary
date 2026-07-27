@@ -99,7 +99,7 @@ class AdminService:
         if data.definition:
             word.definitions.append(Definition(text=data.definition))
         if data.example:
-            word.examples.append(Example(sentence=data.example))
+            word.examples.append(Example(sentence=data.example, translation=data.example_translation))
         if data.pronunciation:
             word.pronunciations.append(Pronunciation(phonetic=data.pronunciation))
         if data.audio_url:

@@ -64,6 +64,7 @@ export interface WordCreate {
   part_of_speech?: string;
   definition?: string;
   example?: string;
+  example_translation?: string;
   dialect_id?: number;
   pronunciation?: string;
   audio_url?: string;

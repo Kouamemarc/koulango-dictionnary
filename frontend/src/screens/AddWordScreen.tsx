@@ -248,6 +248,7 @@ export default function AddWordScreen({ navigation }: any) {
 
       <Field label="Définition" value={form.definition} onChangeText={set("definition")} multiline />
       <Field label="Exemple" value={form.example} onChangeText={set("example")} multiline />
+      <Field label="Traduction de l'exemple" value={form.example_translation} onChangeText={set("example_translation")} multiline />
       <Field label="Prononciation" value={form.pronunciation} onChangeText={set("pronunciation")} />
 
       <View style={{ marginBottom: spacing.md }}>

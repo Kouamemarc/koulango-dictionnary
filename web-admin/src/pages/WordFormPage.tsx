@@ -120,6 +120,7 @@ export default function WordFormPage() {
         translations: form.translations,
         definition: form.definitions[0]?.text,
         example: form.examples[0]?.sentence,
+        example_translation: form.examples[0]?.translation ?? undefined,
         pronunciation: form.pronunciations[0]?.phonetic ?? form.pronunciations[0]?.ipa ?? undefined,
         audio_url: audios[0]?.url,
       });

@@ -64,6 +64,7 @@ class WordCreate(BaseModel):
     part_of_speech: str | None = None
     definition: str | None = None
     example: str | None = None
+    example_translation: str | None = None
     dialect_id: int | None = None
     pronunciation: str | None = None
     audio_url: str | None = None
