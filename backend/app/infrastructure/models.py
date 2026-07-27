@@ -144,6 +144,7 @@ class Translation(Base, TimestampMixin):
     language: Mapped[str] = mapped_column(String(10), default="fr", nullable=False)  # "fr" | "en"
     text: Mapped[str] = mapped_column(String(500), nullable=False)
     example: Mapped[str | None] = mapped_column(Text)  # phrase d'exemple illustrant cette traduction
+    example_translation: Mapped[str | None] = mapped_column(Text)  # traduction de cette phrase d'exemple
 
     word: Mapped["Word"] = relationship(back_populates="translations")
 

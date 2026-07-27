@@ -93,7 +93,9 @@ class AdminService:
             status=WordStatus.PUBLISHED,
         )
         for t in data.translations:
-            word.translations.append(Translation(language=t.language, text=t.text, example=t.example))
+            word.translations.append(Translation(
+                language=t.language, text=t.text, example=t.example, example_translation=t.example_translation,
+            ))
         if data.definition:
             word.definitions.append(Definition(text=data.definition))
         if data.example:
@@ -128,7 +130,10 @@ class AdminService:
         word.source = data.source
         word.image_url = data.image_url
         word.dialect_id = data.dialect_id
-        word.translations = [Translation(language=t.language, text=t.text, example=t.example) for t in data.translations]
+        word.translations = [
+            Translation(language=t.language, text=t.text, example=t.example, example_translation=t.example_translation)
+            for t in data.translations
+        ]
         word.definitions = [Definition(text=d.text) for d in data.definitions]
         word.examples = [Example(sentence=e.sentence, translation=e.translation) for e in data.examples]
         word.pronunciations = [Pronunciation(ipa=p.ipa, phonetic=p.phonetic) for p in data.pronunciations]

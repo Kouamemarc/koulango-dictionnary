@@ -107,7 +107,10 @@ export default function WordDetailScreen({ route }: any) {
                     <Text style={styles.definition}>{t.text}</Text>
                   </View>
                   {t.example ? (
-                    <HighlightedSentence sentence={t.example} term={word.term} style={styles.note} />
+                    <>
+                      <HighlightedSentence sentence={t.example} term={word.term} style={styles.note} />
+                      {t.example_translation ? <Text style={styles.note}>{t.example_translation}</Text> : null}
+                    </>
                   ) : null}
                 </Card>
               ))}

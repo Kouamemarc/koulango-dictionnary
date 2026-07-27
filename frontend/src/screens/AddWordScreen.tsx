@@ -31,11 +31,15 @@ export default function AddWordScreen({ navigation }: any) {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [pendingAudio, setPendingAudio] = useState<PendingAudio | null>(null);
-  const [translations, setTranslations] = useState<{ language: TranslationLang; text: string; example: string }[]>([]);
+  const [translations, setTranslations] = useState<
+    { language: TranslationLang; text: string; example: string; example_translation: string }[]
+  >([]);
 
   const set = (k: keyof WordCreate) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
-  const updateTranslation = (i: number, patch: Partial<{ language: TranslationLang; text: string; example: string }>) =>
-    setTranslations((t) => t.map((item, idx) => (idx === i ? { ...item, ...patch } : item)));
+  const updateTranslation = (
+    i: number,
+    patch: Partial<{ language: TranslationLang; text: string; example: string; example_translation: string }>
+  ) => setTranslations((t) => t.map((item, idx) => (idx === i ? { ...item, ...patch } : item)));
   const busy = uploadingImage || loading || isRecording;
 
   /** Choisit une image dans la galerie de l'appareil et l'envoie au serveur. */
@@ -143,7 +147,11 @@ export default function AddWordScreen({ navigation }: any) {
       }
       const validTranslations = translations
         .filter((t) => t.text.trim())
-        .map((t) => ({ ...t, example: t.example.trim() || undefined }));
+        .map((t) => ({
+          ...t,
+          example: t.example.trim() || undefined,
+          example_translation: t.example_translation.trim() || undefined,
+        }));
       await ContributionsApi.propose({ ...form, audio_url, translations: validTranslations, force_create: force });
       Alert.alert(
         "Merci !",
@@ -224,12 +232,17 @@ export default function AddWordScreen({ navigation }: any) {
               onChangeText={(v) => updateTranslation(i, { example: v })}
               placeholder="Exemple d'utilisation (facultatif)"
             />
+            <Field
+              value={t.example_translation}
+              onChangeText={(v) => updateTranslation(i, { example_translation: v })}
+              placeholder="Traduction de l'exemple (facultatif)"
+            />
           </View>
         ))}
         <Button
           title="+ Ajouter une traduction"
           variant="ghost"
-          onPress={() => setTranslations((t) => [...t, { language: "fr", text: "", example: "" }])}
+          onPress={() => setTranslations((t) => [...t, { language: "fr", text: "", example: "", example_translation: "" }])}
         />
       </View>
 

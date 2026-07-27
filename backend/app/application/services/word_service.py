@@ -90,7 +90,9 @@ class WordService:
         )
         # Sous-entités facultatives du formulaire
         for t in data.translations:
-            word.translations.append(Translation(language=t.language, text=t.text, example=t.example))
+            word.translations.append(Translation(
+                language=t.language, text=t.text, example=t.example, example_translation=t.example_translation,
+            ))
         if data.definition:
             word.definitions.append(Definition(text=data.definition))
         if data.example:

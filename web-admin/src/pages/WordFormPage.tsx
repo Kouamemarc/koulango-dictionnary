@@ -236,10 +236,12 @@ export default function WordFormPage() {
                 onClick={() => setForm({ ...form, translations: form.translations.filter((_, idx) => idx !== i) })}>✕</button>
               <input placeholder="Exemple d'utilisation (facultatif)" style={{ width: "100%" }} value={t.example ?? ""}
                 onChange={(e) => setForm({ ...form, translations: updateAt(form.translations, i, { example: e.target.value }) })} />
+              <input placeholder="Traduction de l'exemple (facultatif)" style={{ width: "100%" }} value={t.example_translation ?? ""}
+                onChange={(e) => setForm({ ...form, translations: updateAt(form.translations, i, { example_translation: e.target.value }) })} />
             </div>
           ))}
           <button type="button" className="ghost"
-            onClick={() => setForm({ ...form, translations: [...form.translations, { language: "fr", text: "", example: "" }] })}>
+            onClick={() => setForm({ ...form, translations: [...form.translations, { language: "fr", text: "", example: "", example_translation: "" }] })}>
             + Ajouter une traduction
           </button>
         </div>

@@ -35,7 +35,7 @@ export interface WordSummary {
 }
 
 export type TranslationLang = "fr" | "en";
-export interface Translation { id?: number; language: TranslationLang; text: string; example?: string | null; }
+export interface Translation { id?: number; language: TranslationLang; text: string; example?: string | null; example_translation?: string | null; }
 export interface Definition { id?: number; text: string; }
 export interface Example { id?: number; sentence: string; translation?: string | null; }
 export interface Pronunciation { id?: number; ipa?: string | null; phonetic?: string | null; }

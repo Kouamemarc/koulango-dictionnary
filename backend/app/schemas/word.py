@@ -8,6 +8,7 @@ class TranslationIn(BaseModel):
     language: str = "fr"  # "fr" | "en"
     text: str
     example: str | None = None
+    example_translation: str | None = None
 
 
 class TranslationOut(TranslationIn):
