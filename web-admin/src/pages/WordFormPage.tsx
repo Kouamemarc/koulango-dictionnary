@@ -27,6 +27,13 @@ function updateAt<T>(list: T[], i: number, patch: Partial<T>): T[] {
   return list.map((item, idx) => (idx === i ? { ...item, ...patch } : item));
 }
 
+/** Audio enregistré/choisi localement pour une ligne, pas encore envoyé au serveur. */
+interface PendingAudio {
+  blob: Blob;
+  name: string;
+  previewUrl: string;
+}
+
 export default function WordFormPage() {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
@@ -34,10 +41,19 @@ export default function WordFormPage() {
   const qc = useQueryClient();
   const [form, setForm] = useState<FormState>(EMPTY);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [uploadingAudioIndex, setUploadingAudioIndex] = useState<number | null>(null);
   const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
+  const [pendingAudios, setPendingAudios] = useState<(PendingAudio | undefined)[]>([]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+
+  const setPendingAudio = (i: number, next: PendingAudio | undefined) => {
+    setPendingAudios((p) => {
+      const copy = [...p];
+      if (copy[i]?.previewUrl) URL.revokeObjectURL(copy[i]!.previewUrl);
+      copy[i] = next;
+      return copy;
+    });
+  };
 
   const { data: existing, isLoading } = useQuery({
     queryKey: ["word", id],
@@ -63,6 +79,16 @@ export default function WordFormPage() {
 
   const submit = useMutation({
     mutationFn: async () => {
+      // Envoie les audios enregistrés/choisis en local juste avant l'enregistrement du mot.
+      const audios = await Promise.all(
+        form.audios.map(async (a, i) => {
+          const pending = pendingAudios[i];
+          if (!pending) return a;
+          const { url } = await MediaApi.upload(pending.blob, pending.name);
+          return { ...a, url };
+        })
+      );
+
       const editPayload = {
         term: form.term,
         fr_translation: form.fr_translation || null,
@@ -72,7 +98,7 @@ export default function WordFormPage() {
         definitions: form.definitions,
         examples: form.examples,
         pronunciations: form.pronunciations,
-        audios: form.audios,
+        audios,
       };
       if (isEdit) return AdminApi.updateWord(Number(id), editPayload);
 
@@ -85,12 +111,12 @@ export default function WordFormPage() {
         definition: form.definitions[0]?.text,
         example: form.examples[0]?.sentence,
         pronunciation: form.pronunciations[0]?.phonetic ?? form.pronunciations[0]?.ipa ?? undefined,
-        audio_url: form.audios[0]?.url,
+        audio_url: audios[0]?.url,
       });
       const hasExtra =
         form.definitions.length > 1 || form.examples.length > 1 ||
-        form.pronunciations.length > 1 || form.audios.length > 1;
-      return hasExtra ? AdminApi.updateWord(created.id, editPayload) : created;
+        form.pronunciations.length > 1 || audios.length > 1;
+      return hasExtra ? AdminApi.updateWord(created.id, { ...editPayload, audios }) : created;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["words"] });
@@ -117,18 +143,10 @@ export default function WordFormPage() {
     }
   };
 
-  const onAudioFileChange = async (i: number, e: ChangeEvent<HTMLInputElement>) => {
+  const onAudioFileChange = (i: number, e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadingAudioIndex(i);
-    try {
-      const { url } = await MediaApi.upload(file);
-      setForm((f) => ({ ...f, audios: updateAt(f.audios, i, { url }) }));
-    } catch {
-      alert("Envoi de l'audio impossible.");
-    } finally {
-      setUploadingAudioIndex(null);
-    }
+    setPendingAudio(i, { blob: file, name: file.name, previewUrl: URL.createObjectURL(file) });
   };
 
   const startRecording = async (i: number) => {
@@ -139,18 +157,10 @@ export default function WordFormPage() {
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
-      recorder.onstop = async () => {
+      recorder.onstop = () => {
         stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
-        setUploadingAudioIndex(i);
-        try {
-          const { url } = await MediaApi.upload(blob, "prononciation.webm");
-          setForm((f) => ({ ...f, audios: updateAt(f.audios, i, { url }) }));
-        } catch {
-          alert("Envoi de l'enregistrement impossible.");
-        } finally {
-          setUploadingAudioIndex(null);
-        }
+        setPendingAudio(i, { blob, name: "prononciation.webm", previewUrl: URL.createObjectURL(blob) });
       };
       recorder.start();
       mediaRecorderRef.current = recorder;
@@ -163,6 +173,11 @@ export default function WordFormPage() {
   const stopRecording = () => {
     mediaRecorderRef.current?.stop();
     setRecordingIndex(null);
+  };
+
+  const removeAudioRow = (i: number) => {
+    setForm((f) => ({ ...f, audios: f.audios.filter((_, idx) => idx !== i) }));
+    setPendingAudios((p) => p.filter((_, idx) => idx !== i));
   };
 
   if (isEdit && isLoading) return <AdminLayout title="Modifier un mot"><p>Chargement…</p></AdminLayout>;
@@ -257,36 +272,53 @@ export default function WordFormPage() {
 
         <div className="subentity-block">
           <h3>Audios</h3>
-          {form.audios.map((a, i) => (
-            <div className="subentity-row" key={i}>
-              <input placeholder="URL audio" value={a.url}
-                onChange={(e) => setForm({ ...form, audios: updateAt(form.audios, i, { url: e.target.value }) })} />
-              <input type="file" accept="audio/*" onChange={(e) => onAudioFileChange(i, e)}
-                disabled={uploadingAudioIndex === i || recordingIndex !== null} />
-              {recordingIndex === i ? (
-                <button type="button" className="danger" onClick={stopRecording}>⏹ Arrêter</button>
-              ) : (
-                <button type="button" className="ghost" onClick={() => startRecording(i)}
-                  disabled={uploadingAudioIndex !== null || recordingIndex !== null}>
-                  🎙 Enregistrer
-                </button>
-              )}
-              <input placeholder="Locuteur" value={a.speaker ?? ""}
-                onChange={(e) => setForm({ ...form, audios: updateAt(form.audios, i, { speaker: e.target.value }) })} />
-              <button type="button" className="danger"
-                onClick={() => setForm({ ...form, audios: form.audios.filter((_, idx) => idx !== i) })}>✕</button>
-            </div>
-          ))}
+          {form.audios.map((a, i) => {
+            const pending = pendingAudios[i];
+            const previewSrc = pending?.previewUrl || a.url || undefined;
+            return (
+              <div className="subentity-row" key={i} style={{ flexWrap: "wrap" }}>
+                <input placeholder="URL audio" value={a.url}
+                  onChange={(e) => setForm({ ...form, audios: updateAt(form.audios, i, { url: e.target.value }) })} />
+                <input type="file" accept="audio/*" onChange={(e) => onAudioFileChange(i, e)}
+                  disabled={recordingIndex !== null} />
+                {recordingIndex === i ? (
+                  <button type="button" className="danger" onClick={stopRecording}>⏹ Arrêter</button>
+                ) : (
+                  <button type="button" className="ghost" onClick={() => startRecording(i)}
+                    disabled={recordingIndex !== null}>
+                    🎙 {pending ? "Réenregistrer" : "Enregistrer"}
+                  </button>
+                )}
+                <input placeholder="Locuteur" value={a.speaker ?? ""}
+                  onChange={(e) => setForm({ ...form, audios: updateAt(form.audios, i, { speaker: e.target.value }) })} />
+                <button type="button" className="danger" onClick={() => removeAudioRow(i)}>✕</button>
+                {previewSrc && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", marginTop: 6 }}>
+                    <audio controls src={previewSrc} style={{ height: 32 }} />
+                    <button type="button" className="ghost"
+                      onClick={() => {
+                        setPendingAudio(i, undefined);
+                        setForm({ ...form, audios: updateAt(form.audios, i, { url: "" }) });
+                      }}>
+                      Supprimer l'audio
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
           <button type="button" className="ghost"
-            onClick={() => setForm({ ...form, audios: [...form.audios, { url: "" }] })}>
+            onClick={() => {
+              setForm({ ...form, audios: [...form.audios, { url: "" }] });
+              setPendingAudios((p) => [...p, undefined]);
+            }}>
             + Ajouter un audio
           </button>
         </div>
 
         {submit.isError && <p className="error">Enregistrement impossible (terme déjà utilisé ?).</p>}
         <button type="submit" disabled={
-          !form.term.trim() || submit.isPending || uploadingImage ||
-          uploadingAudioIndex !== null || recordingIndex !== null
+          !form.term.trim() || submit.isPending || uploadingImage || recordingIndex !== null
         }>
           {submit.isPending ? "Enregistrement…" : isEdit ? "Enregistrer les modifications" : "Publier le mot"}
         </button>

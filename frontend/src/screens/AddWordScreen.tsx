@@ -10,6 +10,13 @@ import { colors, font, radius, spacing } from "@/theme";
 
 type EntryType = "mot" | "expression";
 
+/** Audio choisi/enregistré localement, pas encore envoyé au serveur. */
+interface PendingAudio {
+  uri: string;
+  mimeType?: string | null;
+  fileName?: string | null;
+}
+
 export default function AddWordScreen({ navigation }: any) {
   const [entryType, setEntryType] = useState<EntryType>("mot");
   const [form, setForm] = useState<WordCreate>({ term: "" });
@@ -20,10 +27,10 @@ export default function AddWordScreen({ navigation }: any) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [uploadingAudio, setUploadingAudio] = useState(false);
+  const [pendingAudio, setPendingAudio] = useState<PendingAudio | null>(null);
 
   const set = (k: keyof WordCreate) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
-  const busy = uploadingImage || uploadingAudio || isRecording;
+  const busy = uploadingImage || loading || isRecording;
 
   /** Choisit une image dans la galerie de l'appareil et l'envoie au serveur. */
   const pickImage = async () => {
@@ -52,7 +59,7 @@ export default function AddWordScreen({ navigation }: any) {
     }
   };
 
-  /** Enregistre la prononciation avec le micro de l'appareil. */
+  /** Enregistre la prononciation avec le micro (garde le fichier en local pour l'instant). */
   const startRecording = async () => {
     const perm = await Audio.requestPermissionsAsync();
     if (!perm.granted) {
@@ -72,35 +79,24 @@ export default function AddWordScreen({ navigation }: any) {
   const stopRecording = async () => {
     if (!recording) return;
     setIsRecording(false);
+    await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
     setRecording(null);
-    if (!uri) return;
-    setUploadingAudio(true);
-    try {
-      await recording.stopAndUnloadAsync();
-      const { url } = await MediaApi.upload({ uri, mimeType: "audio/m4a", fileName: "prononciation.m4a" });
-      setForm((f) => ({ ...f, audio_url: url }));
-    } catch {
-      Alert.alert("Erreur", "Envoi de l'enregistrement impossible.");
-    } finally {
-      setUploadingAudio(false);
-    }
+    if (uri) setPendingAudio({ uri, mimeType: "audio/m4a", fileName: "prononciation.m4a" });
   };
 
-  /** Choisit un fichier audio existant sur l'appareil. */
+  /** Choisit un fichier audio existant sur l'appareil (garde-le en local pour l'instant). */
   const pickAudioFile = async () => {
     const result = await DocumentPicker.getDocumentAsync({ type: "audio/*" });
     if (result.canceled) return;
     const asset = result.assets[0];
-    setUploadingAudio(true);
-    try {
-      const { url } = await MediaApi.upload({ uri: asset.uri, mimeType: asset.mimeType, fileName: asset.name });
-      setForm((f) => ({ ...f, audio_url: url }));
-    } catch {
-      Alert.alert("Erreur", "Envoi du fichier audio impossible.");
-    } finally {
-      setUploadingAudio(false);
-    }
+    setPendingAudio({ uri: asset.uri, mimeType: asset.mimeType, fileName: asset.name });
+  };
+
+  const playPendingAudio = async () => {
+    if (!pendingAudio) return;
+    const { sound } = await Audio.Sound.createAsync({ uri: pendingAudio.uri });
+    await sound.playAsync();
   };
 
   /** Étape 1 : vérification intelligente avant l'enregistrement. */
@@ -125,11 +121,21 @@ export default function AddWordScreen({ navigation }: any) {
     }
   };
 
-  /** Étape 2 : enregistrement au statut EN_ATTENTE_VALIDATION. */
+  /** Étape 2 : envoie l'audio en attente (s'il y en a un) puis enregistre la proposition. */
   const submit = async (force: boolean) => {
     setLoading(true);
     try {
-      await ContributionsApi.propose({ ...form, force_create: force });
+      let audio_url = form.audio_url;
+      if (pendingAudio) {
+        try {
+          const uploaded = await MediaApi.upload(pendingAudio);
+          audio_url = uploaded.url;
+        } catch {
+          Alert.alert("Erreur", "Envoi de l'audio impossible.");
+          return;
+        }
+      }
+      await ContributionsApi.propose({ ...form, audio_url, force_create: force });
       Alert.alert(
         "Merci !",
         "Mot ou expression proposé avec succès, ce sera vérifié et validé, merci pour votre contribution ❤️",
@@ -173,13 +179,24 @@ export default function AddWordScreen({ navigation }: any) {
 
       <View style={{ marginBottom: spacing.md }}>
         <Text style={styles.label}>Prononciation audio</Text>
+
+        {pendingAudio && !isRecording && (
+          <View style={[styles.row, { marginBottom: spacing.sm }]}>
+            <View style={{ flex: 1 }}>
+              <Button title="▶ Écouter" variant="ghost" onPress={playPendingAudio} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Button title="Supprimer" variant="danger" onPress={() => setPendingAudio(null)} />
+            </View>
+          </View>
+        )}
+
         <View style={styles.row}>
           <View style={{ flex: 1 }}>
             <Button
-              title={isRecording ? "Arrêter l'enregistrement" : "Enregistrer"}
+              title={isRecording ? "Arrêter l'enregistrement" : pendingAudio ? "Réenregistrer" : "Enregistrer"}
               variant={isRecording ? "danger" : "ghost"}
               onPress={isRecording ? stopRecording : startRecording}
-              disabled={uploadingImage || uploadingAudio}
             />
           </View>
           <View style={{ flex: 1 }}>
@@ -187,12 +204,11 @@ export default function AddWordScreen({ navigation }: any) {
               title="Choisir un fichier"
               variant="ghost"
               onPress={pickAudioFile}
-              disabled={uploadingImage || uploadingAudio || isRecording}
+              disabled={isRecording}
             />
           </View>
         </View>
-        {uploadingAudio && <Text style={styles.hint}>Envoi de l'audio…</Text>}
-        {form.audio_url && !uploadingAudio && <Text style={styles.hint}>✓ Audio ajouté</Text>}
+        {pendingAudio && <Text style={styles.hint}>Sera envoyé avec la proposition.</Text>}
       </View>
 
       <View style={{ marginBottom: spacing.md }}>
