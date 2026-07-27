@@ -28,7 +28,10 @@ export function WordListItem({
           </View>
         )}
         <View style={{ flex: 1 }}>
-          <Text style={styles.term}>{headline}</Text>
+          <View style={styles.termRow}>
+            <Text style={styles.term}>{headline}</Text>
+            {item.part_of_speech ? <Text style={styles.pos}>({item.part_of_speech})</Text> : null}
+          </View>
           {secondary ? <Text style={styles.tr}>{secondary}</Text> : null}
         </View>
         <TouchableOpacity onPress={() => toggleFavorite(item)} hitSlop={8}>
@@ -44,6 +47,8 @@ const styles = StyleSheet.create({
   thumb: { width: 48, height: 48, borderRadius: radius.md, backgroundColor: colors.border },
   thumbPlaceholder: { alignItems: "center", justifyContent: "center" },
   thumbInitial: { fontSize: font.h3, fontWeight: "700", color: colors.primaryDark },
+  termRow: { flexDirection: "row", alignItems: "baseline", gap: 6 },
   term: { fontSize: font.h3, fontWeight: "700", color: colors.text },
+  pos: { fontSize: font.small, color: colors.textMuted, fontStyle: "italic" },
   tr: { fontSize: font.small, color: colors.textMuted, marginTop: 2 },
 });

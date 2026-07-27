@@ -15,8 +15,8 @@ export function HeaderLogo() {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: 8 },
-  logo: { width: 32, height: 32, borderRadius: 8 },
-  line1: { fontSize: 11, fontWeight: "800", color: colors.primaryDark, letterSpacing: 0.5 },
-  line2: { fontSize: 15, fontWeight: "800", color: colors.accent, letterSpacing: 0.5, marginTop: -2 },
+  row: { flexDirection: "row", alignItems: "center", gap: 10 },
+  logo: { width: 42, height: 42, borderRadius: 10 },
+  line1: { fontSize: 13, fontWeight: "800", color: colors.primaryDark, letterSpacing: 0.5 },
+  line2: { fontSize: 19, fontWeight: "800", color: colors.accent, letterSpacing: 0.5, marginTop: -2 },
 });

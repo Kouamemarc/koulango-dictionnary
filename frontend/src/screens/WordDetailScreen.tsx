@@ -71,7 +71,10 @@ export default function WordDetailScreen({ route }: any) {
               </TouchableOpacity>
             </View>
             {firstExample ? (
-              <HighlightedSentence sentence={firstExample.sentence} term={word.term} style={styles.note} />
+              <>
+                <HighlightedSentence sentence={firstExample.sentence} term={word.term} style={styles.note} />
+                {firstExample.translation ? <Text style={styles.note}>{firstExample.translation}</Text> : null}
+              </>
             ) : null}
           </>
         ) : null}

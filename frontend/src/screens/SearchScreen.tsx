@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, RefreshControl, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { Loading } from "@/components/UI";
@@ -22,7 +22,7 @@ export default function SearchScreen({ navigation }: any) {
     enabled: isSearching,
   });
 
-  const { data, isFetching } = isSearching ? search : list;
+  const { data, isLoading, isRefetching, refetch } = isSearching ? search : list;
 
   return (
     <View style={styles.container}>
@@ -55,12 +55,15 @@ export default function SearchScreen({ navigation }: any) {
         <Text style={[styles.toggleLabel, lang === "koulango" && styles.toggleLabelActive]}>Koulango</Text>
       </View>
 
-      {isFetching && <Loading />}
+      {isLoading && <Loading />}
       <FlatList
         data={data ?? []}
         keyExtractor={(w) => String(w.id)}
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} colors={[colors.primary]} />
+        }
         ListEmptyComponent={
-          !isFetching ? (
+          !isLoading ? (
             <Text style={styles.empty}>
               {isSearching ? `Aucun résultat pour « ${q} ».` : "Aucun mot publié pour l'instant."}
             </Text>
