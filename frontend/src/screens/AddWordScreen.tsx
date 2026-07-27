@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import * as DocumentPicker from "expo-document-picker";
+import { Audio } from "expo-av";
 import { Button, Field } from "@/components/UI";
 import { ContributionsApi, MediaApi } from "@/api/endpoints";
 import type { Suggestion, WordCreate } from "@/types";
@@ -16,8 +18,12 @@ export default function AddWordScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [uploadingAudio, setUploadingAudio] = useState(false);
 
   const set = (k: keyof WordCreate) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
+  const busy = uploadingImage || uploadingAudio || isRecording;
 
   /** Choisit une image dans la galerie de l'appareil et l'envoie au serveur. */
   const pickImage = async () => {
@@ -43,6 +49,57 @@ export default function AddWordScreen({ navigation }: any) {
       setImagePreview(null);
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  /** Enregistre la prononciation avec le micro de l'appareil. */
+  const startRecording = async () => {
+    const perm = await Audio.requestPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert("Permission requise", "Autorise l'accès au micro pour enregistrer.");
+      return;
+    }
+    try {
+      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+      const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+      setRecording(recording);
+      setIsRecording(true);
+    } catch {
+      Alert.alert("Erreur", "Impossible de démarrer l'enregistrement.");
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!recording) return;
+    setIsRecording(false);
+    const uri = recording.getURI();
+    setRecording(null);
+    if (!uri) return;
+    setUploadingAudio(true);
+    try {
+      await recording.stopAndUnloadAsync();
+      const { url } = await MediaApi.upload({ uri, mimeType: "audio/m4a", fileName: "prononciation.m4a" });
+      setForm((f) => ({ ...f, audio_url: url }));
+    } catch {
+      Alert.alert("Erreur", "Envoi de l'enregistrement impossible.");
+    } finally {
+      setUploadingAudio(false);
+    }
+  };
+
+  /** Choisit un fichier audio existant sur l'appareil. */
+  const pickAudioFile = async () => {
+    const result = await DocumentPicker.getDocumentAsync({ type: "audio/*" });
+    if (result.canceled) return;
+    const asset = result.assets[0];
+    setUploadingAudio(true);
+    try {
+      const { url } = await MediaApi.upload({ uri: asset.uri, mimeType: asset.mimeType, fileName: asset.name });
+      setForm((f) => ({ ...f, audio_url: url }));
+    } catch {
+      Alert.alert("Erreur", "Envoi du fichier audio impossible.");
+    } finally {
+      setUploadingAudio(false);
     }
   };
 
@@ -113,7 +170,30 @@ export default function AddWordScreen({ navigation }: any) {
       <Field label="Définition" value={form.definition} onChangeText={set("definition")} multiline />
       <Field label="Exemple" value={form.example} onChangeText={set("example")} multiline />
       <Field label="Prononciation" value={form.pronunciation} onChangeText={set("pronunciation")} />
-      <Field label="URL audio" value={form.audio_url} onChangeText={set("audio_url")} autoCapitalize="none" />
+
+      <View style={{ marginBottom: spacing.md }}>
+        <Text style={styles.label}>Prononciation audio</Text>
+        <View style={styles.row}>
+          <View style={{ flex: 1 }}>
+            <Button
+              title={isRecording ? "Arrêter l'enregistrement" : "Enregistrer"}
+              variant={isRecording ? "danger" : "ghost"}
+              onPress={isRecording ? stopRecording : startRecording}
+              disabled={uploadingImage || uploadingAudio}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Button
+              title="Choisir un fichier"
+              variant="ghost"
+              onPress={pickAudioFile}
+              disabled={uploadingImage || uploadingAudio || isRecording}
+            />
+          </View>
+        </View>
+        {uploadingAudio && <Text style={styles.hint}>Envoi de l'audio…</Text>}
+        {form.audio_url && !uploadingAudio && <Text style={styles.hint}>✓ Audio ajouté</Text>}
+      </View>
 
       <View style={{ marginBottom: spacing.md }}>
         <Text style={styles.label}>Illustration</Text>
@@ -126,10 +206,10 @@ export default function AddWordScreen({ navigation }: any) {
         />
       </View>
 
-      <Field label="Source" value={form.source} onChangeText={set("source")} />
+      <Field label="Votre nom" placeholder="Ex : Marc BK" value={form.source} onChangeText={set("source")} />
       <Field label="Traduction anglaise" value={form.en_translation} onChangeText={set("en_translation")} />
 
-      <Button title="Proposer" onPress={handleCheck} loading={loading} disabled={uploadingImage} />
+      <Button title="Proposer" onPress={handleCheck} loading={loading} disabled={busy} />
 
       {/* Modale de la recherche intelligente */}
       <Modal visible={showModal} transparent animationType="fade">
@@ -159,6 +239,8 @@ export default function AddWordScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   label: { fontSize: font.small, color: colors.textMuted, marginBottom: 6, fontWeight: "500" },
+  hint: { fontSize: font.small, color: colors.textMuted, marginTop: 6 },
+  row: { flexDirection: "row", gap: spacing.sm },
   preview: { width: 120, height: 120, borderRadius: radius.md, backgroundColor: colors.border, marginBottom: spacing.sm },
   typeRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
   typeBtn: {

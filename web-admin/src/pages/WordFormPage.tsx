@@ -34,6 +34,7 @@ export default function WordFormPage() {
   const qc = useQueryClient();
   const [form, setForm] = useState<FormState>(EMPTY);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingAudioIndex, setUploadingAudioIndex] = useState<number | null>(null);
 
   const { data: existing, isLoading } = useQuery({
     queryKey: ["word", id],
@@ -113,6 +114,20 @@ export default function WordFormPage() {
     }
   };
 
+  const onAudioFileChange = async (i: number, e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAudioIndex(i);
+    try {
+      const { url } = await MediaApi.upload(file);
+      setForm((f) => ({ ...f, audios: updateAt(f.audios, i, { url }) }));
+    } catch {
+      alert("Envoi de l'audio impossible.");
+    } finally {
+      setUploadingAudioIndex(null);
+    }
+  };
+
   if (isEdit && isLoading) return <AdminLayout title="Modifier un mot"><p>Chargement…</p></AdminLayout>;
 
   return (
@@ -141,8 +156,12 @@ export default function WordFormPage() {
           {uploadingImage && <p className="muted">Envoi en cours…</p>}
         </div>
         <div className="field">
-          <label>Source</label>
-          <input value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })} />
+          <label>Ajouté par</label>
+          <input
+            placeholder="Ex : Marc BK"
+            value={form.source}
+            onChange={(e) => setForm({ ...form, source: e.target.value })}
+          />
         </div>
 
         <div className="subentity-block">
@@ -205,6 +224,8 @@ export default function WordFormPage() {
             <div className="subentity-row" key={i}>
               <input placeholder="URL audio" value={a.url}
                 onChange={(e) => setForm({ ...form, audios: updateAt(form.audios, i, { url: e.target.value }) })} />
+              <input type="file" accept="audio/*" onChange={(e) => onAudioFileChange(i, e)}
+                disabled={uploadingAudioIndex === i} />
               <input placeholder="Locuteur" value={a.speaker ?? ""}
                 onChange={(e) => setForm({ ...form, audios: updateAt(form.audios, i, { speaker: e.target.value }) })} />
               <button type="button" className="danger"

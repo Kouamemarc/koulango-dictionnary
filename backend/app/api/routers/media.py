@@ -8,21 +8,27 @@ from app.infrastructure.models import MediaFile
 
 router = APIRouter(prefix="/media", tags=["Média"])
 
-ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
-MAX_SIZE = 5 * 1024 * 1024  # 5 Mo
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+ALLOWED_AUDIO_TYPES = {
+    "audio/mpeg", "audio/mp4", "audio/x-m4a", "audio/m4a", "audio/aac",
+    "audio/wav", "audio/x-wav", "audio/webm", "audio/3gpp", "audio/ogg",
+}
+ALLOWED_TYPES = ALLOWED_IMAGE_TYPES | ALLOWED_AUDIO_TYPES
+MAX_SIZE = 8 * 1024 * 1024  # 8 Mo
 
 
-@router.post("", status_code=201, summary="Uploader une image (illustration)")
+@router.post("", status_code=201, summary="Uploader une image ou un audio")
 async def upload(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
-    """Accessible sans compte, comme la contribution : accepte jpeg/png/webp/gif, 5 Mo max."""
+    """Accessible sans compte, comme la contribution : image (jpeg/png/webp/gif) ou
+    audio (mp3/m4a/aac/wav/ogg/webm), 8 Mo max."""
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(
             status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            "Format d'image non supporté (jpeg, png, webp ou gif uniquement).",
+            "Format non supporté (image jpeg/png/webp/gif ou audio mp3/m4a/aac/wav/ogg).",
         )
     data = await file.read()
     if len(data) > MAX_SIZE:
-        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, "Image trop volumineuse (5 Mo max).")
+        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, "Fichier trop volumineux (8 Mo max).")
 
     media = MediaFile(content_type=file.content_type, data=data)
     db.add(media)
