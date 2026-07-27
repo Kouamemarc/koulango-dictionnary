@@ -81,6 +81,7 @@ class WordService:
             normalized=norm,
             fr_translation=data.fr_translation,
             en_translation=data.en_translation,
+            part_of_speech=data.part_of_speech,
             source=data.source,
             image_url=data.image_url,
             dialect_id=data.dialect_id,
@@ -89,7 +90,7 @@ class WordService:
         )
         # Sous-entités facultatives du formulaire
         for t in data.translations:
-            word.translations.append(Translation(language=t.language, text=t.text))
+            word.translations.append(Translation(language=t.language, text=t.text, example=t.example))
         if data.definition:
             word.definitions.append(Definition(text=data.definition))
         if data.example:

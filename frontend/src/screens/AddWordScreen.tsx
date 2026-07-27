@@ -11,6 +11,8 @@ import { colors, font, radius, spacing } from "@/theme";
 
 type EntryType = "mot" | "expression";
 
+const PARTS_OF_SPEECH = ["nom", "verbe", "adjectif", "pronom", "adverbe", "interjection"] as const;
+
 /** Audio choisi/enregistré localement, pas encore envoyé au serveur. */
 interface PendingAudio {
   uri: string;
@@ -29,10 +31,10 @@ export default function AddWordScreen({ navigation }: any) {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [pendingAudio, setPendingAudio] = useState<PendingAudio | null>(null);
-  const [translations, setTranslations] = useState<{ language: TranslationLang; text: string }[]>([]);
+  const [translations, setTranslations] = useState<{ language: TranslationLang; text: string; example: string }[]>([]);
 
   const set = (k: keyof WordCreate) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
-  const updateTranslation = (i: number, patch: Partial<{ language: TranslationLang; text: string }>) =>
+  const updateTranslation = (i: number, patch: Partial<{ language: TranslationLang; text: string; example: string }>) =>
     setTranslations((t) => t.map((item, idx) => (idx === i ? { ...item, ...patch } : item)));
   const busy = uploadingImage || loading || isRecording;
 
@@ -139,7 +141,9 @@ export default function AddWordScreen({ navigation }: any) {
           return;
         }
       }
-      const validTranslations = translations.filter((t) => t.text.trim());
+      const validTranslations = translations
+        .filter((t) => t.text.trim())
+        .map((t) => ({ ...t, example: t.example.trim() || undefined }));
       await ContributionsApi.propose({ ...form, audio_url, translations: validTranslations, force_create: force });
       Alert.alert(
         "Merci !",
@@ -180,30 +184,52 @@ export default function AddWordScreen({ navigation }: any) {
       <Field label="Traduction française" value={form.fr_translation} onChangeText={set("fr_translation")} />
 
       <View style={{ marginBottom: spacing.md }}>
+        <Text style={styles.label}>Nature du mot</Text>
+        <View style={styles.posRow}>
+          {PARTS_OF_SPEECH.map((pos) => (
+            <TouchableOpacity
+              key={pos}
+              style={[styles.posBtn, form.part_of_speech === pos && styles.posBtnActive]}
+              onPress={() => setForm((f) => ({ ...f, part_of_speech: f.part_of_speech === pos ? undefined : pos }))}
+            >
+              <Text style={[styles.posBtnText, form.part_of_speech === pos && styles.posBtnTextActive]}>{pos}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      <View style={{ marginBottom: spacing.md }}>
         <Text style={styles.label}>Autres traductions (un mot peut avoir plusieurs sens)</Text>
         {translations.map((t, i) => (
-          <View key={i} style={[styles.row, styles.translationRow]}>
-            <TouchableOpacity
-              style={styles.langBtn}
-              onPress={() => updateTranslation(i, { language: t.language === "fr" ? "en" : "fr" })}
-            >
-              <Text style={styles.langBtnText}>{t.language.toUpperCase()}</Text>
-            </TouchableOpacity>
-            <View style={{ flex: 1 }}>
-              <Field value={t.text} onChangeText={(v) => updateTranslation(i, { text: v })} placeholder="Traduction" />
+          <View key={i} style={styles.translationBlock}>
+            <View style={styles.row}>
+              <TouchableOpacity
+                style={styles.langBtn}
+                onPress={() => updateTranslation(i, { language: t.language === "fr" ? "en" : "fr" })}
+              >
+                <Text style={styles.langBtnText}>{t.language.toUpperCase()}</Text>
+              </TouchableOpacity>
+              <View style={{ flex: 1 }}>
+                <Field value={t.text} onChangeText={(v) => updateTranslation(i, { text: v })} placeholder="Traduction" />
+              </View>
+              <TouchableOpacity
+                hitSlop={8}
+                onPress={() => setTranslations((ts) => ts.filter((_, idx) => idx !== i))}
+              >
+                <Ionicons name="close-circle" size={22} color={colors.danger} />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              hitSlop={8}
-              onPress={() => setTranslations((ts) => ts.filter((_, idx) => idx !== i))}
-            >
-              <Ionicons name="close-circle" size={22} color={colors.danger} />
-            </TouchableOpacity>
+            <Field
+              value={t.example}
+              onChangeText={(v) => updateTranslation(i, { example: v })}
+              placeholder="Exemple d'utilisation (facultatif)"
+            />
           </View>
         ))}
         <Button
           title="+ Ajouter une traduction"
           variant="ghost"
-          onPress={() => setTranslations((t) => [...t, { language: "fr", text: "" }])}
+          onPress={() => setTranslations((t) => [...t, { language: "fr", text: "", example: "" }])}
         />
       </View>
 
@@ -291,12 +317,20 @@ const styles = StyleSheet.create({
   label: { fontSize: font.small, color: colors.textMuted, marginBottom: 6, fontWeight: "500" },
   hint: { fontSize: font.small, color: colors.textMuted, marginTop: 6 },
   row: { flexDirection: "row", gap: spacing.sm },
-  translationRow: { alignItems: "center", marginBottom: spacing.sm },
+  translationBlock: { marginBottom: spacing.sm },
   langBtn: {
     paddingHorizontal: 10, paddingVertical: 8, borderRadius: radius.sm,
     backgroundColor: colors.border,
   },
   langBtnText: { fontSize: font.tiny, fontWeight: "700", color: colors.text },
+  posRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
+  posBtn: {
+    paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.full,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface,
+  },
+  posBtnActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  posBtnText: { fontSize: font.small, fontWeight: "600", color: colors.textMuted },
+  posBtnTextActive: { color: "#fff" },
   preview: { width: 120, height: 120, borderRadius: radius.md, backgroundColor: colors.border, marginBottom: spacing.sm },
   typeRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
   typeBtn: {

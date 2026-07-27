@@ -49,7 +49,7 @@ export default function WordDetailScreen({ route }: any) {
         <View style={styles.row}>
           <View style={{ flex: 1 }}>
             <Text style={styles.headline}>{word.term}</Text>
-            {firstDefinition?.part_of_speech ? <Text style={styles.pos}>({firstDefinition.part_of_speech})</Text> : null}
+            {word.part_of_speech ? <Text style={styles.pos}>({word.part_of_speech})</Text> : null}
           </View>
           <TouchableOpacity onPress={playAudio} disabled={!hasAudio} hitSlop={8}>
             <Ionicons name="volume-medium-outline" size={22} color={hasAudio ? colors.primary : colors.border} />
@@ -101,9 +101,14 @@ export default function WordDetailScreen({ route }: any) {
             <View style={styles.moreSection}>
               <Text style={styles.moreSectionTitle}>Autres traductions</Text>
               {word.translations.map((t: Translation) => (
-                <Card key={t.id} style={styles.row}>
-                  <Text style={styles.langTag}>{t.language.toUpperCase()}</Text>
-                  <Text style={styles.definition}>{t.text}</Text>
+                <Card key={t.id}>
+                  <View style={styles.row}>
+                    <Text style={styles.langTag}>{t.language.toUpperCase()}</Text>
+                    <Text style={styles.definition}>{t.text}</Text>
+                  </View>
+                  {t.example ? (
+                    <HighlightedSentence sentence={t.example} term={word.term} style={styles.note} />
+                  ) : null}
                 </Card>
               ))}
             </View>
@@ -114,7 +119,6 @@ export default function WordDetailScreen({ route }: any) {
               {word.definitions.slice(1).map((d: Definition) => (
                 <Card key={d.id}>
                   <Text style={styles.definition}>{d.text}</Text>
-                  {d.part_of_speech ? <Text style={styles.pos}>({d.part_of_speech})</Text> : null}
                 </Card>
               ))}
             </View>

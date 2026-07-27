@@ -21,8 +21,8 @@ export interface WordSummary {
 }
 
 export type TranslationLang = "fr" | "en";
-export interface Translation { id: number; language: TranslationLang; text: string; }
-export interface Definition { id: number; text: string; part_of_speech?: string | null; }
+export interface Translation { id: number; language: TranslationLang; text: string; example?: string | null; }
+export interface Definition { id: number; text: string; }
 export interface Example { id: number; sentence: string; translation?: string | null; }
 export interface Pronunciation { id: number; ipa?: string | null; phonetic?: string | null; }
 export interface Audio { id: number; url: string; duration_ms?: number | null; speaker?: string | null; }
@@ -32,6 +32,7 @@ export interface WordDetail {
   term: string;
   fr_translation?: string | null;
   en_translation?: string | null;
+  part_of_speech?: string | null;
   source?: string | null;
   image_url?: string | null;
   status: WordStatus;
@@ -60,6 +61,7 @@ export interface WordCreate {
   term: string;
   fr_translation?: string;
   en_translation?: string;
+  part_of_speech?: string;
   definition?: string;
   example?: string;
   dialect_id?: number;
@@ -67,6 +69,6 @@ export interface WordCreate {
   audio_url?: string;
   image_url?: string;
   source?: string;
-  translations?: { language: TranslationLang; text: string }[];
+  translations?: { language: TranslationLang; text: string; example?: string }[];
   force_create?: boolean;
 }

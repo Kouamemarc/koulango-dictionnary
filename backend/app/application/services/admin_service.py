@@ -86,13 +86,14 @@ class AdminService:
             normalized=norm,
             fr_translation=data.fr_translation,
             en_translation=data.en_translation,
+            part_of_speech=data.part_of_speech,
             source=data.source,
             image_url=data.image_url,
             dialect_id=data.dialect_id,
             status=WordStatus.PUBLISHED,
         )
         for t in data.translations:
-            word.translations.append(Translation(language=t.language, text=t.text))
+            word.translations.append(Translation(language=t.language, text=t.text, example=t.example))
         if data.definition:
             word.definitions.append(Definition(text=data.definition))
         if data.example:
@@ -123,11 +124,12 @@ class AdminService:
         word.normalized = norm
         word.fr_translation = data.fr_translation
         word.en_translation = data.en_translation
+        word.part_of_speech = data.part_of_speech
         word.source = data.source
         word.image_url = data.image_url
         word.dialect_id = data.dialect_id
-        word.translations = [Translation(language=t.language, text=t.text) for t in data.translations]
-        word.definitions = [Definition(text=d.text, part_of_speech=d.part_of_speech) for d in data.definitions]
+        word.translations = [Translation(language=t.language, text=t.text, example=t.example) for t in data.translations]
+        word.definitions = [Definition(text=d.text) for d in data.definitions]
         word.examples = [Example(sentence=e.sentence, translation=e.translation) for e in data.examples]
         word.pronunciations = [Pronunciation(ipa=p.ipa, phonetic=p.phonetic) for p in data.pronunciations]
         word.audios = [Audio(url=a.url, duration_ms=a.duration_ms, speaker=a.speaker) for a in data.audios]

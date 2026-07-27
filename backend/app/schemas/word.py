@@ -7,6 +7,7 @@ from app.domain.enums import WordStatus
 class TranslationIn(BaseModel):
     language: str = "fr"  # "fr" | "en"
     text: str
+    example: str | None = None
 
 
 class TranslationOut(TranslationIn):
@@ -16,7 +17,6 @@ class TranslationOut(TranslationIn):
 
 class DefinitionIn(BaseModel):
     text: str
-    part_of_speech: str | None = None
 
 
 class ExampleIn(BaseModel):
@@ -60,6 +60,7 @@ class WordCreate(BaseModel):
     term: str = Field(min_length=1, max_length=255)
     fr_translation: str | None = None
     en_translation: str | None = None
+    part_of_speech: str | None = None
     definition: str | None = None
     example: str | None = None
     dialect_id: int | None = None
@@ -90,6 +91,7 @@ class WordDetail(BaseModel):
     term: str
     fr_translation: str | None
     en_translation: str | None
+    part_of_speech: str | None
     source: str | None
     image_url: str | None
     status: WordStatus
@@ -107,6 +109,7 @@ class WordEdit(BaseModel):
     term: str = Field(min_length=1, max_length=255)
     fr_translation: str | None = None
     en_translation: str | None = None
+    part_of_speech: str | None = None
     source: str | None = None
     image_url: str | None = None
     dialect_id: int | None = None

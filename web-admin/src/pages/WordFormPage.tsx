@@ -6,10 +6,13 @@ import { AdminApi, MediaApi, WordsApi } from "../api/endpoints";
 import { AdminLayout } from "../components/AdminLayout";
 import type { Audio, Definition, Example, Pronunciation, Translation } from "../api/types";
 
+const PARTS_OF_SPEECH = ["nom", "verbe", "adjectif", "pronom", "adverbe", "interjection"];
+
 interface FormState {
   term: string;
   fr_translation: string;
   en_translation: string;
+  part_of_speech: string;
   source: string;
   image_url: string;
   translations: Translation[];
@@ -20,7 +23,7 @@ interface FormState {
 }
 
 const EMPTY: FormState = {
-  term: "", fr_translation: "", en_translation: "", source: "", image_url: "",
+  term: "", fr_translation: "", en_translation: "", part_of_speech: "", source: "", image_url: "",
   translations: [], definitions: [], examples: [], pronunciations: [], audios: [],
 };
 
@@ -68,6 +71,7 @@ export default function WordFormPage() {
         term: existing.term,
         fr_translation: existing.fr_translation ?? "",
         en_translation: existing.en_translation ?? "",
+        part_of_speech: existing.part_of_speech ?? "",
         source: existing.source ?? "",
         image_url: existing.image_url ?? "",
         translations: existing.translations,
@@ -95,6 +99,7 @@ export default function WordFormPage() {
         term: form.term,
         fr_translation: form.fr_translation || null,
         en_translation: form.en_translation || null,
+        part_of_speech: form.part_of_speech || null,
         source: form.source || null,
         image_url: form.image_url || null,
         translations: form.translations,
@@ -109,6 +114,7 @@ export default function WordFormPage() {
         term: form.term,
         fr_translation: form.fr_translation || undefined,
         en_translation: form.en_translation || undefined,
+        part_of_speech: form.part_of_speech || undefined,
         source: form.source || undefined,
         image_url: form.image_url || undefined,
         translations: form.translations,
@@ -203,11 +209,20 @@ export default function WordFormPage() {
             <input value={form.en_translation} onChange={(e) => setForm({ ...form, en_translation: e.target.value })} />
           </div>
         </div>
+        <div className="field">
+          <label>Nature du mot</label>
+          <select value={form.part_of_speech} onChange={(e) => setForm({ ...form, part_of_speech: e.target.value })}>
+            <option value="">—</option>
+            {PARTS_OF_SPEECH.map((pos) => (
+              <option key={pos} value={pos}>{pos}</option>
+            ))}
+          </select>
+        </div>
         <div className="subentity-block">
           <h3>Autres traductions</h3>
           <p className="muted" style={{ marginTop: 0 }}>Un mot peut avoir plusieurs sens.</p>
           {form.translations.map((t, i) => (
-            <div className="subentity-row" key={i}>
+            <div className="subentity-row" key={i} style={{ flexWrap: "wrap" }}>
               <select
                 value={t.language}
                 onChange={(e) => setForm({ ...form, translations: updateAt(form.translations, i, { language: e.target.value as "fr" | "en" }) })}
@@ -219,10 +234,12 @@ export default function WordFormPage() {
                 onChange={(e) => setForm({ ...form, translations: updateAt(form.translations, i, { text: e.target.value }) })} />
               <button type="button" className="danger"
                 onClick={() => setForm({ ...form, translations: form.translations.filter((_, idx) => idx !== i) })}>✕</button>
+              <input placeholder="Exemple d'utilisation (facultatif)" style={{ width: "100%" }} value={t.example ?? ""}
+                onChange={(e) => setForm({ ...form, translations: updateAt(form.translations, i, { example: e.target.value }) })} />
             </div>
           ))}
           <button type="button" className="ghost"
-            onClick={() => setForm({ ...form, translations: [...form.translations, { language: "fr", text: "" }] })}>
+            onClick={() => setForm({ ...form, translations: [...form.translations, { language: "fr", text: "", example: "" }] })}>
             + Ajouter une traduction
           </button>
         </div>
@@ -250,8 +267,6 @@ export default function WordFormPage() {
             <div className="subentity-row" key={i}>
               <input placeholder="Texte" value={d.text}
                 onChange={(e) => setForm({ ...form, definitions: updateAt(form.definitions, i, { text: e.target.value }) })} />
-              <input placeholder="Nature (nom, verbe…)" value={d.part_of_speech ?? ""}
-                onChange={(e) => setForm({ ...form, definitions: updateAt(form.definitions, i, { part_of_speech: e.target.value }) })} />
               <button type="button" className="danger"
                 onClick={() => setForm({ ...form, definitions: form.definitions.filter((_, idx) => idx !== i) })}>✕</button>
             </div>

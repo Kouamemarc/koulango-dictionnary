@@ -71,6 +71,7 @@ class Word(Base, TimestampMixin):
     normalized: Mapped[str] = mapped_column(String(255), index=True, nullable=False)  # minuscules, sans accents
     fr_translation: Mapped[str | None] = mapped_column(String(500))
     en_translation: Mapped[str | None] = mapped_column(String(500))
+    part_of_speech: Mapped[str | None] = mapped_column(String(60))  # nom, verbe, pronom...
     source: Mapped[str | None] = mapped_column(String(500))
     image_url: Mapped[str | None] = mapped_column(String(1000))
     status: Mapped[WordStatus] = mapped_column(
@@ -109,10 +110,6 @@ class Word(Base, TimestampMixin):
     # Extraits pour les cartes de résultat (WordSummary), sans requête supplémentaire
     # si definitions/examples sont préchargées (selectinload) par le repository.
     @property
-    def part_of_speech(self) -> str | None:
-        return self.definitions[0].part_of_speech if self.definitions else None
-
-    @property
     def definition(self) -> str | None:
         return self.definitions[0].text if self.definitions else None
 
@@ -146,6 +143,7 @@ class Translation(Base, TimestampMixin):
     word_id: Mapped[int] = mapped_column(ForeignKey("words.id", ondelete="CASCADE"))
     language: Mapped[str] = mapped_column(String(10), default="fr", nullable=False)  # "fr" | "en"
     text: Mapped[str] = mapped_column(String(500), nullable=False)
+    example: Mapped[str | None] = mapped_column(Text)  # phrase d'exemple illustrant cette traduction
 
     word: Mapped["Word"] = relationship(back_populates="translations")
 
@@ -156,7 +154,6 @@ class Definition(Base, TimestampMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     word_id: Mapped[int] = mapped_column(ForeignKey("words.id", ondelete="CASCADE"))
     text: Mapped[str] = mapped_column(Text, nullable=False)
-    part_of_speech: Mapped[str | None] = mapped_column(String(60))  # nom, verbe, adjectif...
 
     word: Mapped["Word"] = relationship(back_populates="definitions")
 
