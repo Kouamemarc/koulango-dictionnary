@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AdminApi, MediaApi, WordsApi } from "../api/endpoints";
 import { AdminLayout } from "../components/AdminLayout";
-import type { Audio, Definition, Example, Pronunciation } from "../api/types";
+import type { Audio, Definition, Example, Pronunciation, Translation } from "../api/types";
 
 interface FormState {
   term: string;
@@ -12,6 +12,7 @@ interface FormState {
   en_translation: string;
   source: string;
   image_url: string;
+  translations: Translation[];
   definitions: Definition[];
   examples: Example[];
   pronunciations: Pronunciation[];
@@ -20,7 +21,7 @@ interface FormState {
 
 const EMPTY: FormState = {
   term: "", fr_translation: "", en_translation: "", source: "", image_url: "",
-  definitions: [], examples: [], pronunciations: [], audios: [],
+  translations: [], definitions: [], examples: [], pronunciations: [], audios: [],
 };
 
 function updateAt<T>(list: T[], i: number, patch: Partial<T>): T[] {
@@ -69,6 +70,7 @@ export default function WordFormPage() {
         en_translation: existing.en_translation ?? "",
         source: existing.source ?? "",
         image_url: existing.image_url ?? "",
+        translations: existing.translations,
         definitions: existing.definitions,
         examples: existing.examples,
         pronunciations: existing.pronunciations,
@@ -95,6 +97,7 @@ export default function WordFormPage() {
         en_translation: form.en_translation || null,
         source: form.source || null,
         image_url: form.image_url || null,
+        translations: form.translations,
         definitions: form.definitions,
         examples: form.examples,
         pronunciations: form.pronunciations,
@@ -108,13 +111,14 @@ export default function WordFormPage() {
         en_translation: form.en_translation || undefined,
         source: form.source || undefined,
         image_url: form.image_url || undefined,
+        translations: form.translations,
         definition: form.definitions[0]?.text,
         example: form.examples[0]?.sentence,
         pronunciation: form.pronunciations[0]?.phonetic ?? form.pronunciations[0]?.ipa ?? undefined,
         audio_url: audios[0]?.url,
       });
       const hasExtra =
-        form.definitions.length > 1 || form.examples.length > 1 ||
+        form.translations.length > 0 || form.definitions.length > 1 || form.examples.length > 1 ||
         form.pronunciations.length > 1 || audios.length > 1;
       return hasExtra ? AdminApi.updateWord(created.id, { ...editPayload, audios }) : created;
     },
@@ -199,6 +203,30 @@ export default function WordFormPage() {
             <input value={form.en_translation} onChange={(e) => setForm({ ...form, en_translation: e.target.value })} />
           </div>
         </div>
+        <div className="subentity-block">
+          <h3>Autres traductions</h3>
+          <p className="muted" style={{ marginTop: 0 }}>Un mot peut avoir plusieurs sens.</p>
+          {form.translations.map((t, i) => (
+            <div className="subentity-row" key={i}>
+              <select
+                value={t.language}
+                onChange={(e) => setForm({ ...form, translations: updateAt(form.translations, i, { language: e.target.value as "fr" | "en" }) })}
+              >
+                <option value="fr">FR</option>
+                <option value="en">EN</option>
+              </select>
+              <input placeholder="Traduction" value={t.text}
+                onChange={(e) => setForm({ ...form, translations: updateAt(form.translations, i, { text: e.target.value }) })} />
+              <button type="button" className="danger"
+                onClick={() => setForm({ ...form, translations: form.translations.filter((_, idx) => idx !== i) })}>✕</button>
+            </div>
+          ))}
+          <button type="button" className="ghost"
+            onClick={() => setForm({ ...form, translations: [...form.translations, { language: "fr", text: "" }] })}>
+            + Ajouter une traduction
+          </button>
+        </div>
+
         <div className="field">
           <label>Illustration</label>
           {form.image_url && (

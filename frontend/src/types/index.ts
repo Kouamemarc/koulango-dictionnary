@@ -20,6 +20,8 @@ export interface WordSummary {
   status: WordStatus;
 }
 
+export type TranslationLang = "fr" | "en";
+export interface Translation { id: number; language: TranslationLang; text: string; }
 export interface Definition { id: number; text: string; part_of_speech?: string | null; }
 export interface Example { id: number; sentence: string; translation?: string | null; }
 export interface Pronunciation { id: number; ipa?: string | null; phonetic?: string | null; }
@@ -34,6 +36,7 @@ export interface WordDetail {
   image_url?: string | null;
   status: WordStatus;
   dialect_id?: number | null;
+  translations: Translation[];
   definitions: Definition[];
   examples: Example[];
   pronunciations: Pronunciation[];
@@ -64,5 +67,6 @@ export interface WordCreate {
   audio_url?: string;
   image_url?: string;
   source?: string;
+  translations?: { language: TranslationLang; text: string }[];
   force_create?: boolean;
 }

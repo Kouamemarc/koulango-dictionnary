@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from app.domain.enums import ValidationDecision, WordStatus
 from app.infrastructure.models import (
-    Audio, Contribution, Definition, Example, Notification, Pronunciation, Validation, Word,
+    Audio, Contribution, Definition, Example, Notification, Pronunciation, Translation, Validation, Word,
 )
 from app.infrastructure.repositories.word_repository import normalize
 from app.schemas.admin import MergeRequest, PendingContribution, ValidationRequest
@@ -91,6 +91,8 @@ class AdminService:
             dialect_id=data.dialect_id,
             status=WordStatus.PUBLISHED,
         )
+        for t in data.translations:
+            word.translations.append(Translation(language=t.language, text=t.text))
         if data.definition:
             word.definitions.append(Definition(text=data.definition))
         if data.example:
@@ -124,6 +126,7 @@ class AdminService:
         word.source = data.source
         word.image_url = data.image_url
         word.dialect_id = data.dialect_id
+        word.translations = [Translation(language=t.language, text=t.text) for t in data.translations]
         word.definitions = [Definition(text=d.text, part_of_speech=d.part_of_speech) for d in data.definitions]
         word.examples = [Example(sentence=e.sentence, translation=e.translation) for e in data.examples]
         word.pronunciations = [Pronunciation(ipa=p.ipa, phonetic=p.phonetic) for p in data.pronunciations]
@@ -143,7 +146,7 @@ class AdminService:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Impossible de fusionner un mot avec lui-même.")
 
         # Rattacher les sous-entités du source vers le target
-        for coll in (source.definitions, source.examples, source.pronunciations, source.audios):
+        for coll in (source.translations, source.definitions, source.examples, source.pronunciations, source.audios):
             for item in list(coll):
                 item.word_id = target.id
         source.status = WordStatus.MERGED

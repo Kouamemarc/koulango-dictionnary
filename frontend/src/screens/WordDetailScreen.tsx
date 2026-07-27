@@ -8,7 +8,7 @@ import { WordsApi } from "@/api/endpoints";
 import { useFavorites } from "@/store/favorites";
 import { useHistory } from "@/store/history";
 import { colors, font, spacing } from "@/theme";
-import type { Definition, Example } from "@/types";
+import type { Definition, Example, Translation } from "@/types";
 
 export default function WordDetailScreen({ route }: any) {
   const { id } = route.params;
@@ -39,7 +39,7 @@ export default function WordDetailScreen({ route }: any) {
   const hasAudio = word.audios.length > 0;
   const firstDefinition = word.definitions[0];
   const firstExample = word.examples[0];
-  const hasMore = word.definitions.length > 1 || word.examples.length > 1;
+  const hasMore = word.translations.length > 0 || word.definitions.length > 1 || word.examples.length > 1;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing.md }}>
@@ -97,9 +97,20 @@ export default function WordDetailScreen({ route }: any) {
 
       {showMore && (
         <>
-          {word.definitions.length > 1 && (
+          {word.translations.length > 0 && (
             <View style={styles.moreSection}>
               <Text style={styles.moreSectionTitle}>Autres traductions</Text>
+              {word.translations.map((t: Translation) => (
+                <Card key={t.id} style={styles.row}>
+                  <Text style={styles.langTag}>{t.language.toUpperCase()}</Text>
+                  <Text style={styles.definition}>{t.text}</Text>
+                </Card>
+              ))}
+            </View>
+          )}
+          {word.definitions.length > 1 && (
+            <View style={styles.moreSection}>
+              <Text style={styles.moreSectionTitle}>Autres définitions</Text>
               {word.definitions.slice(1).map((d: Definition) => (
                 <Card key={d.id}>
                   <Text style={styles.definition}>{d.text}</Text>
@@ -155,6 +166,10 @@ const styles = StyleSheet.create({
   highlight: { color: colors.accent, fontWeight: "700" },
   moreSection: { marginTop: spacing.md },
   moreSectionTitle: { fontSize: font.small, fontWeight: "700", color: colors.textMuted, marginBottom: spacing.xs },
+  langTag: {
+    fontSize: font.tiny, fontWeight: "700", color: colors.textMuted,
+    backgroundColor: colors.border, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4,
+  },
   footerRow: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     marginTop: spacing.md,

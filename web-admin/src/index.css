@@ -43,7 +43,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 button.ghost { background: transparent; color: var(--primary); border: 1px solid var(--border); }
 button.danger { background: var(--danger); }
 
-input, textarea {
+input, textarea, select {
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid var(--border);
@@ -53,6 +53,7 @@ input, textarea {
   font-family: inherit;
 }
 textarea { resize: vertical; }
+select { flex: 0 0 auto; }
 
 .login-page {
   min-height: 100vh;

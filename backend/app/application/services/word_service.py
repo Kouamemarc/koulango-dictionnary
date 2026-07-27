@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 
 from app.core.config import settings
 from app.domain.enums import ContributionType, WordStatus
-from app.infrastructure.models import Contribution, Definition, Example, Pronunciation, Audio, User
+from app.infrastructure.models import Contribution, Definition, Example, Pronunciation, Audio, Translation, User
 from app.infrastructure.repositories.word_repository import WordRepository, normalize
 from app.schemas.word import SmartCheckResponse, Suggestion, WordCreate
 
@@ -88,6 +88,8 @@ class WordService:
             status=WordStatus.PENDING,
         )
         # Sous-entités facultatives du formulaire
+        for t in data.translations:
+            word.translations.append(Translation(language=t.language, text=t.text))
         if data.definition:
             word.definitions.append(Definition(text=data.definition))
         if data.example:

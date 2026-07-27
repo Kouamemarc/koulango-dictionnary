@@ -3,9 +3,10 @@ import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, Vi
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 import { Audio } from "expo-av";
+import { Ionicons } from "@expo/vector-icons";
 import { Button, Field } from "@/components/UI";
 import { ContributionsApi, MediaApi } from "@/api/endpoints";
-import type { Suggestion, WordCreate } from "@/types";
+import type { Suggestion, TranslationLang, WordCreate } from "@/types";
 import { colors, font, radius, spacing } from "@/theme";
 
 type EntryType = "mot" | "expression";
@@ -28,8 +29,11 @@ export default function AddWordScreen({ navigation }: any) {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [pendingAudio, setPendingAudio] = useState<PendingAudio | null>(null);
+  const [translations, setTranslations] = useState<{ language: TranslationLang; text: string }[]>([]);
 
   const set = (k: keyof WordCreate) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
+  const updateTranslation = (i: number, patch: Partial<{ language: TranslationLang; text: string }>) =>
+    setTranslations((t) => t.map((item, idx) => (idx === i ? { ...item, ...patch } : item)));
   const busy = uploadingImage || loading || isRecording;
 
   /** Choisit une image dans la galerie de l'appareil et l'envoie au serveur. */
@@ -135,7 +139,8 @@ export default function AddWordScreen({ navigation }: any) {
           return;
         }
       }
-      await ContributionsApi.propose({ ...form, audio_url, force_create: force });
+      const validTranslations = translations.filter((t) => t.text.trim());
+      await ContributionsApi.propose({ ...form, audio_url, translations: validTranslations, force_create: force });
       Alert.alert(
         "Merci !",
         "Mot ou expression proposé avec succès, ce sera vérifié et validé, merci pour votre contribution ❤️",
@@ -173,6 +178,35 @@ export default function AddWordScreen({ navigation }: any) {
         autoFocus
       />
       <Field label="Traduction française" value={form.fr_translation} onChangeText={set("fr_translation")} />
+
+      <View style={{ marginBottom: spacing.md }}>
+        <Text style={styles.label}>Autres traductions (un mot peut avoir plusieurs sens)</Text>
+        {translations.map((t, i) => (
+          <View key={i} style={[styles.row, styles.translationRow]}>
+            <TouchableOpacity
+              style={styles.langBtn}
+              onPress={() => updateTranslation(i, { language: t.language === "fr" ? "en" : "fr" })}
+            >
+              <Text style={styles.langBtnText}>{t.language.toUpperCase()}</Text>
+            </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+              <Field value={t.text} onChangeText={(v) => updateTranslation(i, { text: v })} placeholder="Traduction" />
+            </View>
+            <TouchableOpacity
+              hitSlop={8}
+              onPress={() => setTranslations((ts) => ts.filter((_, idx) => idx !== i))}
+            >
+              <Ionicons name="close-circle" size={22} color={colors.danger} />
+            </TouchableOpacity>
+          </View>
+        ))}
+        <Button
+          title="+ Ajouter une traduction"
+          variant="ghost"
+          onPress={() => setTranslations((t) => [...t, { language: "fr", text: "" }])}
+        />
+      </View>
+
       <Field label="Définition" value={form.definition} onChangeText={set("definition")} multiline />
       <Field label="Exemple" value={form.example} onChangeText={set("example")} multiline />
       <Field label="Prononciation" value={form.pronunciation} onChangeText={set("pronunciation")} />
@@ -257,6 +291,12 @@ const styles = StyleSheet.create({
   label: { fontSize: font.small, color: colors.textMuted, marginBottom: 6, fontWeight: "500" },
   hint: { fontSize: font.small, color: colors.textMuted, marginTop: 6 },
   row: { flexDirection: "row", gap: spacing.sm },
+  translationRow: { alignItems: "center", marginBottom: spacing.sm },
+  langBtn: {
+    paddingHorizontal: 10, paddingVertical: 8, borderRadius: radius.sm,
+    backgroundColor: colors.border,
+  },
+  langBtnText: { fontSize: font.tiny, fontWeight: "700", color: colors.text },
   preview: { width: 120, height: 120, borderRadius: radius.md, backgroundColor: colors.border, marginBottom: spacing.sm },
   typeRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
   typeBtn: {

@@ -43,6 +43,7 @@ class WordRepository:
         stmt = (
             select(Word)
             .options(
+                selectinload(Word.translations),
                 selectinload(Word.definitions),
                 selectinload(Word.examples),
                 selectinload(Word.pronunciations),

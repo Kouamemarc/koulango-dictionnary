@@ -4,6 +4,16 @@ from pydantic import BaseModel, Field
 from app.domain.enums import WordStatus
 
 
+class TranslationIn(BaseModel):
+    language: str = "fr"  # "fr" | "en"
+    text: str
+
+
+class TranslationOut(TranslationIn):
+    id: int
+    model_config = {"from_attributes": True}
+
+
 class DefinitionIn(BaseModel):
     text: str
     part_of_speech: str | None = None
@@ -57,6 +67,7 @@ class WordCreate(BaseModel):
     audio_url: str | None = None
     image_url: str | None = None
     source: str | None = None
+    translations: list[TranslationIn] = []
     # Si l'utilisateur a confirmé qu'il s'agit d'un nouveau mot malgré les suggestions
     force_create: bool = False
 
@@ -83,6 +94,7 @@ class WordDetail(BaseModel):
     image_url: str | None
     status: WordStatus
     dialect_id: int | None
+    translations: list[TranslationOut] = []
     definitions: list[DefinitionOut] = []
     examples: list[ExampleOut] = []
     pronunciations: list[PronunciationOut] = []
@@ -98,6 +110,7 @@ class WordEdit(BaseModel):
     source: str | None = None
     image_url: str | None = None
     dialect_id: int | None = None
+    translations: list[TranslationIn] = []
     definitions: list[DefinitionIn] = []
     examples: list[ExampleIn] = []
     pronunciations: list[PronunciationIn] = []

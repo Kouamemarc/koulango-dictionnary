@@ -83,6 +83,9 @@ class Word(Base, TimestampMixin):
     created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
 
     dialect: Mapped["Dialect"] = relationship(back_populates="words")
+    translations: Mapped[list["Translation"]] = relationship(
+        back_populates="word", cascade="all, delete-orphan"
+    )
     definitions: Mapped[list["Definition"]] = relationship(
         back_populates="word", cascade="all, delete-orphan"
     )
@@ -131,6 +134,20 @@ class Expression(Base, TimestampMixin):
     meaning: Mapped[str | None] = mapped_column(Text)
 
     word: Mapped["Word"] = relationship(back_populates="expressions")
+
+
+class Translation(Base, TimestampMixin):
+    """Traduction alternative d'un mot (un mot koulango peut se traduire de
+    plusieurs façons) — fr_translation/en_translation restent la traduction
+    principale affichée partout ; ceci couvre les traductions supplémentaires."""
+    __tablename__ = "translations"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    word_id: Mapped[int] = mapped_column(ForeignKey("words.id", ondelete="CASCADE"))
+    language: Mapped[str] = mapped_column(String(10), default="fr", nullable=False)  # "fr" | "en"
+    text: Mapped[str] = mapped_column(String(500), nullable=False)
+
+    word: Mapped["Word"] = relationship(back_populates="translations")
 
 
 class Definition(Base, TimestampMixin):
