@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { Image, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Audio } from "expo-av";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -7,10 +7,12 @@ import { Card, Loading } from "@/components/UI";
 import { WordsApi } from "@/api/endpoints";
 import { useFavorites } from "@/store/favorites";
 import { useHistory } from "@/store/history";
-import { colors, font, spacing } from "@/theme";
+import { font, spacing, ThemeColors, useThemeColors } from "@/theme";
 import type { Definition, Example, Translation } from "@/types";
 
 export default function WordDetailScreen({ route }: any) {
+  const colors = useThemeColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const { id } = route.params;
   const [showMore, setShowMore] = useState(false);
   const { data: word, isLoading } = useQuery({
@@ -32,6 +34,19 @@ export default function WordDetailScreen({ route }: any) {
     if (!word?.audios.length) return;
     const { sound } = await Audio.Sound.createAsync({ uri: word.audios[0].url });
     await sound.playAsync();
+  };
+
+  const shareWord = async () => {
+    if (!word) return;
+    const lines = [word.part_of_speech ? `${word.term} (${word.part_of_speech})` : word.term];
+    if (word.fr_translation) lines.push(`Français : ${word.fr_translation}`);
+    if (word.definitions[0]) lines.push(word.definitions[0].text);
+    lines.push("", "Découvert sur Dictionnaire Koulango");
+    try {
+      await Share.share({ message: lines.join("\n") });
+    } catch {
+      // L'utilisateur a simplement annulé le partage.
+    }
   };
 
   if (isLoading || !word) return <Loading />;
@@ -72,7 +87,7 @@ export default function WordDetailScreen({ route }: any) {
             </View>
             {firstExample ? (
               <>
-                <HighlightedSentence sentence={firstExample.sentence} term={word.term} style={styles.note} />
+                <HighlightedSentence sentence={firstExample.sentence} term={word.term} style={styles.note} colors={colors} />
                 {firstExample.translation ? <Text style={styles.note}>{firstExample.translation}</Text> : null}
               </>
             ) : null}
@@ -80,12 +95,17 @@ export default function WordDetailScreen({ route }: any) {
         ) : null}
 
         <View style={styles.footerRow}>
-          <TouchableOpacity
-            onPress={() => toggleFavorite({ id: word.id, term: word.term, fr_translation: word.fr_translation, image_url: word.image_url, status: word.status })}
-            hitSlop={8}
-          >
-            <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={24} color={colors.favorite} />
-          </TouchableOpacity>
+          <View style={styles.footerActions}>
+            <TouchableOpacity
+              onPress={() => toggleFavorite({ id: word.id, term: word.term, fr_translation: word.fr_translation, image_url: word.image_url, status: word.status })}
+              hitSlop={8}
+            >
+              <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={24} color={colors.favorite} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={shareWord} hitSlop={8}>
+              <Ionicons name="share-social-outline" size={22} color={colors.primaryDark} />
+            </TouchableOpacity>
+          </View>
           {hasMore && (
             <TouchableOpacity style={styles.moreButton} onPress={() => setShowMore((v) => !v)}>
               <Text style={styles.moreText}>{showMore ? "Voir moins" : "Voir plus"}</Text>
@@ -108,7 +128,7 @@ export default function WordDetailScreen({ route }: any) {
                   </View>
                   {t.example ? (
                     <>
-                      <HighlightedSentence sentence={t.example} term={word.term} style={styles.note} />
+                      <HighlightedSentence sentence={t.example} term={word.term} style={styles.note} colors={colors} />
                       {t.example_translation ? <Text style={styles.note}>{t.example_translation}</Text> : null}
                     </>
                   ) : null}
@@ -131,7 +151,7 @@ export default function WordDetailScreen({ route }: any) {
               <Text style={styles.moreSectionTitle}>Autres exemples</Text>
               {word.examples.slice(1).map((e: Example) => (
                 <Card key={e.id}>
-                  <HighlightedSentence sentence={e.sentence} term={word.term} style={styles.definition} />
+                  <HighlightedSentence sentence={e.sentence} term={word.term} style={styles.definition} colors={colors} />
                   {e.translation ? <Text style={styles.pos}>{e.translation}</Text> : null}
                 </Card>
               ))}
@@ -147,19 +167,21 @@ export default function WordDetailScreen({ route }: any) {
 }
 
 /** Affiche une phrase d'exemple en surlignant l'occurrence du mot/expression. */
-function HighlightedSentence({ sentence, term, style }: { sentence: string; term: string; style: object }) {
+function HighlightedSentence({
+  sentence, term, style, colors,
+}: { sentence: string; term: string; style: object; colors: ThemeColors }) {
   const idx = sentence.toLowerCase().indexOf(term.toLowerCase());
   if (idx === -1) return <Text style={style}>{sentence}</Text>;
   return (
     <Text style={style}>
       {sentence.slice(0, idx)}
-      <Text style={styles.highlight}>{sentence.slice(idx, idx + term.length)}</Text>
+      <Text style={{ color: colors.accent, fontWeight: "700" }}>{sentence.slice(idx, idx + term.length)}</Text>
       {sentence.slice(idx + term.length)}
     </Text>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   image: { width: "100%", height: 200, borderRadius: 16, marginBottom: spacing.md, backgroundColor: colors.border },
   row: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
@@ -170,7 +192,6 @@ const styles = StyleSheet.create({
   secondary: { fontSize: font.body, color: colors.text, flex: 1 },
   secondaryLabel: { fontWeight: "700", color: colors.accent },
   note: { fontSize: font.small, color: colors.textMuted, fontStyle: "italic", marginTop: 4 },
-  highlight: { color: colors.accent, fontWeight: "700" },
   moreSection: { marginTop: spacing.md },
   moreSectionTitle: { fontSize: font.small, fontWeight: "700", color: colors.textMuted, marginBottom: spacing.xs },
   langTag: {
@@ -181,6 +202,7 @@ const styles = StyleSheet.create({
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     marginTop: spacing.md,
   },
+  footerActions: { flexDirection: "row", alignItems: "center", gap: spacing.md },
   moreButton: { flexDirection: "row", alignItems: "center", gap: 2 },
   moreText: { fontSize: font.small, fontWeight: "600", color: colors.primaryDark },
   footerInfo: { fontSize: font.small, color: colors.textMuted, marginTop: spacing.sm },

@@ -1,10 +1,11 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { useColorScheme } from "react-native";
+import { DarkTheme, DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 
-import { colors } from "@/theme";
+import { useThemeColors } from "@/theme";
 import { HeaderLogo } from "@/components/HeaderLogo";
 import SearchScreen from "@/screens/SearchScreen";
 import WordDetailScreen from "@/screens/WordDetailScreen";
@@ -16,6 +17,7 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function Tabs() {
+  const colors = useThemeColors();
   return (
     <Tab.Navigator
       screenOptions={{
@@ -48,8 +50,15 @@ function Tabs() {
 }
 
 export default function RootNavigator() {
+  const colors = useThemeColors();
+  const isDark = useColorScheme() === "dark";
+  const base = isDark ? DarkTheme : DefaultTheme;
+  const navTheme = {
+    ...base,
+    colors: { ...base.colors, background: colors.bg, card: colors.bg, text: colors.text, border: colors.border, primary: colors.primary },
+  };
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navTheme}>
       <Stack.Navigator
         screenOptions={{
           headerStyle: { backgroundColor: colors.bg },

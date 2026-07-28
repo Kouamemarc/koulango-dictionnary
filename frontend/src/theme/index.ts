@@ -1,5 +1,7 @@
 /** Palette et tokens de design — vert forêt / brun / crème (identité Koulango). */
-export const colors = {
+import { useColorScheme } from "react-native";
+
+export const lightColors = {
   primary: "#1B6B3D",      // vert forêt
   primaryDark: "#124D2B",
   accent: "#8B4A1E",       // brun (bois, terre)
@@ -13,6 +15,29 @@ export const colors = {
   success: "#16A34A",
   warning: "#D97706",
 };
+
+export const darkColors: typeof lightColors = {
+  primary: "#3FA96C",
+  primaryDark: "#7FD9A4",  // plus clair que primary pour rester lisible sur fond sombre
+  accent: "#D19A6A",
+  bg: "#161310",           // brun très sombre au lieu de crème
+  surface: "#211C16",
+  text: "#F1E9DA",
+  textMuted: "#B3A48F",
+  border: "#3A322A",
+  danger: "#F87171",
+  favorite: "#E08A5C",
+  success: "#4ADE80",
+  warning: "#FBBF24",
+};
+
+export type ThemeColors = typeof lightColors;
+
+/** Couleurs actives selon le thème système (clair/sombre), réactif aux changements. */
+export function useThemeColors(): ThemeColors {
+  const scheme = useColorScheme();
+  return scheme === "dark" ? darkColors : lightColors;
+}
 
 export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 };
 export const radius = { sm: 8, md: 12, lg: 20, full: 999 };

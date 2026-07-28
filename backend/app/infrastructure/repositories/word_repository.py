@@ -17,7 +17,7 @@ from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session, selectinload
 
 from app.domain.enums import WordStatus
-from app.infrastructure.models import Word
+from app.infrastructure.models import Definition, Example, Word
 
 
 def normalize(term: str) -> str:
@@ -59,23 +59,31 @@ class WordRepository:
     def search(self, query: str, limit: int = 20, lang: str = "koulango") -> Sequence[Word]:
         """Recherche instantanée bidirectionnelle : koulango (préfixe + trigram) ET
         traduction française (préfixe), mots publiés. `lang` ne change que la priorité
-        d'affichage (koulango d'abord, ou français d'abord)."""
+        d'affichage (koulango d'abord, ou français d'abord).
+
+        Élargie aux définitions et exemples : un mot dont seule une définition ou
+        un exemple contient la requête remonte aussi, mais après les correspondances
+        directes sur le terme/la traduction (`content_match` en dernier critère de tri)."""
         norm = normalize(query)
         q_lower = query.strip().lower()
         term_similarity = func.similarity(Word.normalized, norm)
         term_match = (Word.normalized.like(f"{norm}%")) | (term_similarity > 0.2)
         fr_match = func.lower(Word.fr_translation).like(f"%{q_lower}%")
+        content_match = (
+            Word.id.in_(select(Definition.word_id).where(func.lower(Definition.text).like(f"%{q_lower}%")))
+            | Word.id.in_(select(Example.word_id).where(func.lower(Example.sentence).like(f"%{q_lower}%")))
+        )
 
         order = (
-            (fr_match.desc(), term_similarity.desc())
+            (fr_match.desc(), term_similarity.desc(), content_match.desc())
             if lang == "francais"
-            else (term_similarity.desc(), fr_match.desc())
+            else (term_similarity.desc(), fr_match.desc(), content_match.desc())
         )
         stmt = (
             select(Word)
             .options(selectinload(Word.definitions), selectinload(Word.examples), selectinload(Word.audios))
             .where(Word.status == WordStatus.PUBLISHED)
-            .where(term_match | fr_match)
+            .where(term_match | fr_match | content_match)
             .order_by(*order)
             .limit(limit)
         )

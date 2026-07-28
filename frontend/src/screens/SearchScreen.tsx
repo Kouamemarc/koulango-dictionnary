@@ -1,14 +1,40 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Alert, FlatList, RefreshControl, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { Loading } from "@/components/UI";
 import { WordListItem } from "@/components/WordListItem";
 import { WordsApi } from "@/api/endpoints";
-import { colors, font, radius, spacing } from "@/theme";
+import { font, radius, spacing, ThemeColors, useThemeColors } from "@/theme";
 import type { Lang } from "@/types";
 
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
+  searchBar: {
+    flexDirection: "row", alignItems: "center", gap: spacing.sm,
+    backgroundColor: colors.surface, borderRadius: radius.full,
+    borderWidth: 1, borderColor: colors.border,
+    paddingHorizontal: spacing.md, paddingVertical: 12, marginBottom: spacing.sm,
+  },
+  searchInput: { flex: 1, fontSize: font.body, color: colors.text },
+  toggleRow: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.md,
+    backgroundColor: colors.surface, borderRadius: radius.full,
+    borderWidth: 1, borderColor: colors.border,
+    paddingVertical: 10, marginBottom: spacing.md,
+  },
+  toggleLabel: { fontSize: font.small, fontWeight: "600", color: colors.textMuted },
+  toggleLabelActive: { color: colors.text },
+  toggleButton: {
+    width: 34, height: 34, borderRadius: radius.full,
+    backgroundColor: colors.primary, alignItems: "center", justifyContent: "center",
+  },
+  empty: { textAlign: "center", color: colors.textMuted, marginTop: spacing.lg },
+});
+
 export default function SearchScreen({ navigation }: any) {
+  const colors = useThemeColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [q, setQ] = useState("");
   const [lang, setLang] = useState<Lang>("koulango");
   const isSearching = q.length >= 1;
@@ -74,27 +100,3 @@ export default function SearchScreen({ navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
-  searchBar: {
-    flexDirection: "row", alignItems: "center", gap: spacing.sm,
-    backgroundColor: colors.surface, borderRadius: radius.full,
-    borderWidth: 1, borderColor: colors.border,
-    paddingHorizontal: spacing.md, paddingVertical: 12, marginBottom: spacing.sm,
-  },
-  searchInput: { flex: 1, fontSize: font.body, color: colors.text },
-  toggleRow: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.md,
-    backgroundColor: colors.surface, borderRadius: radius.full,
-    borderWidth: 1, borderColor: colors.border,
-    paddingVertical: 10, marginBottom: spacing.md,
-  },
-  toggleLabel: { fontSize: font.small, fontWeight: "600", color: colors.textMuted },
-  toggleLabelActive: { color: colors.text },
-  toggleButton: {
-    width: 34, height: 34, borderRadius: radius.full,
-    backgroundColor: colors.primary, alignItems: "center", justifyContent: "center",
-  },
-  empty: { textAlign: "center", color: colors.textMuted, marginTop: spacing.lg },
-});

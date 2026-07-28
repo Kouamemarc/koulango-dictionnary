@@ -1,11 +1,18 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { Button } from "@/components/UI";
 import { WordListItem } from "@/components/WordListItem";
 import { useHistory } from "@/store/history";
-import { colors, spacing } from "@/theme";
+import { spacing, ThemeColors, useThemeColors } from "@/theme";
+
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
+  empty: { textAlign: "center", color: colors.textMuted, marginTop: spacing.lg },
+});
 
 export default function HistoryScreen({ navigation }: any) {
+  const colors = useThemeColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const items = useHistory((s) => s.items);
   const clear = useHistory((s) => s.clear);
 
@@ -23,8 +30,3 @@ export default function HistoryScreen({ navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.md, backgroundColor: colors.bg },
-  empty: { textAlign: "center", color: colors.textMuted, marginTop: spacing.lg },
-});

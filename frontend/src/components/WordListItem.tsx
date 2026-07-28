@@ -1,14 +1,27 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Card } from "@/components/UI";
 import { useFavorites } from "@/store/favorites";
-import { colors, font, radius, spacing } from "@/theme";
+import { font, radius, spacing, ThemeColors, useThemeColors } from "@/theme";
 import type { Lang, WordSummary } from "@/types";
+
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
+  row: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  thumb: { width: 48, height: 48, borderRadius: radius.md, backgroundColor: colors.border },
+  thumbPlaceholder: { alignItems: "center", justifyContent: "center" },
+  thumbInitial: { fontSize: font.h3, fontWeight: "700", color: colors.primaryDark },
+  termRow: { flexDirection: "row", alignItems: "baseline", gap: 6 },
+  term: { fontSize: font.h3, fontWeight: "700", color: colors.text },
+  pos: { fontSize: font.small, color: colors.textMuted, fontStyle: "italic" },
+  tr: { fontSize: font.small, color: colors.textMuted, marginTop: 2 },
+});
 
 export function WordListItem({
   item, navigation, lang = "koulango",
 }: { item: WordSummary; navigation: any; lang?: Lang }) {
+  const colors = useThemeColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const isFavorite = useFavorites((s) => s.isFavorite(item.id));
   const toggleFavorite = useFavorites((s) => s.toggle);
 
@@ -41,14 +54,3 @@ export function WordListItem({
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  thumb: { width: 48, height: 48, borderRadius: radius.md, backgroundColor: colors.border },
-  thumbPlaceholder: { alignItems: "center", justifyContent: "center" },
-  thumbInitial: { fontSize: font.h3, fontWeight: "700", color: colors.primaryDark },
-  termRow: { flexDirection: "row", alignItems: "baseline", gap: 6 },
-  term: { fontSize: font.h3, fontWeight: "700", color: colors.text },
-  pos: { fontSize: font.small, color: colors.textMuted, fontStyle: "italic" },
-  tr: { fontSize: font.small, color: colors.textMuted, marginTop: 2 },
-});

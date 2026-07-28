@@ -46,7 +46,7 @@ export default function App() {
           },
         }}
       >
-        <StatusBar style="dark" />
+        <StatusBar style="auto" />
         <RootNavigator />
       </PersistQueryClientProvider>
     </SafeAreaProvider>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
@@ -7,7 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Button, Field } from "@/components/UI";
 import { ContributionsApi, MediaApi } from "@/api/endpoints";
 import type { Suggestion, TranslationLang, WordCreate } from "@/types";
-import { colors, font, radius, spacing } from "@/theme";
+import { font, radius, spacing, ThemeColors, useThemeColors } from "@/theme";
 
 type EntryType = "mot" | "expression";
 
@@ -21,6 +21,8 @@ interface PendingAudio {
 }
 
 export default function AddWordScreen({ navigation }: any) {
+  const colors = useThemeColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [entryType, setEntryType] = useState<EntryType>("mot");
   const [form, setForm] = useState<WordCreate>({ term: "" });
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -326,7 +328,7 @@ export default function AddWordScreen({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   label: { fontSize: font.small, color: colors.textMuted, marginBottom: 6, fontWeight: "500" },
   hint: { fontSize: font.small, color: colors.textMuted, marginTop: 6 },
