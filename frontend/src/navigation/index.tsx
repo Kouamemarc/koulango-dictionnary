@@ -1,12 +1,12 @@
 import React from "react";
-import { useColorScheme } from "react-native";
 import { DarkTheme, DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 
-import { useThemeColors } from "@/theme";
+import { useIsDark, useThemeColors } from "@/theme";
 import { HeaderLogo } from "@/components/HeaderLogo";
+import { ThemeToggleButton } from "@/components/ThemeToggleButton";
 import SearchScreen from "@/screens/SearchScreen";
 import WordDetailScreen from "@/screens/WordDetailScreen";
 import AddWordScreen from "@/screens/AddWordScreen";
@@ -28,6 +28,7 @@ function Tabs() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
+        headerRight: () => <ThemeToggleButton />,
       }}
     >
       <Tab.Screen name="Accueil" component={SearchScreen}
@@ -51,7 +52,7 @@ function Tabs() {
 
 export default function RootNavigator() {
   const colors = useThemeColors();
-  const isDark = useColorScheme() === "dark";
+  const isDark = useIsDark();
   const base = isDark ? DarkTheme : DefaultTheme;
   const navTheme = {
     ...base,
@@ -67,7 +68,11 @@ export default function RootNavigator() {
         }}
       >
         <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-        <Stack.Screen name="WordDetail" component={WordDetailScreen} options={{ title: "Fiche du mot" }} />
+        <Stack.Screen
+          name="WordDetail"
+          component={WordDetailScreen}
+          options={{ title: "Fiche du mot", headerRight: () => <ThemeToggleButton /> }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

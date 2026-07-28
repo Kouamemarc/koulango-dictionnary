@@ -1,5 +1,6 @@
 /** Palette et tokens de design — vert forêt / brun / crème (identité Koulango). */
 import { useColorScheme } from "react-native";
+import { useThemePreference } from "@/store/themePreference";
 
 export const lightColors = {
   primary: "#1B6B3D",      // vert forêt
@@ -33,10 +34,16 @@ export const darkColors: typeof lightColors = {
 
 export type ThemeColors = typeof lightColors;
 
-/** Couleurs actives selon le thème système (clair/sombre), réactif aux changements. */
-export function useThemeColors(): ThemeColors {
+/** Sombre ou clair : le choix explicite de l'utilisateur prime, sinon l'apparence système. */
+export function useIsDark(): boolean {
   const scheme = useColorScheme();
-  return scheme === "dark" ? darkColors : lightColors;
+  const override = useThemePreference((s) => s.mode);
+  return override ? override === "dark" : scheme === "dark";
+}
+
+/** Couleurs actives selon le thème (choix utilisateur ou système), réactif aux changements. */
+export function useThemeColors(): ThemeColors {
+  return useIsDark() ? darkColors : lightColors;
 }
 
 export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 };
