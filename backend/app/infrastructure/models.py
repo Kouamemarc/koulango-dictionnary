@@ -228,6 +228,7 @@ class Contribution(Base, TimestampMixin):
     type: Mapped[ContributionType] = mapped_column(Enum(ContributionType), default=ContributionType.CREATE)
     payload: Mapped[str | None] = mapped_column(Text)  # snapshot JSON de la proposition
     status: Mapped[WordStatus] = mapped_column(Enum(WordStatus), default=WordStatus.PENDING, index=True)
+    ip_address: Mapped[str | None] = mapped_column(String(45), index=True)  # limitation de débit anti-spam
 
     author: Mapped["User | None"] = relationship(back_populates="contributions")
     validation: Mapped["Validation"] = relationship(

@@ -1,6 +1,6 @@
 """Dépendances FastAPI : session, utilisateur courant, gardes de rôles."""
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
@@ -57,6 +57,14 @@ def get_optional_user(
     except (jwt.PyJWTError, KeyError, ValueError):
         return None
     return user if user and user.is_active else None
+
+
+def get_client_ip(request: Request) -> str | None:
+    """Adresse IP réelle du client, en tenant compte du proxy Render (X-Forwarded-For)."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else None
 
 
 # --- Hiérarchie des rôles (un admin a tous les droits d'un modérateur, etc.) ---
