@@ -1,18 +1,22 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Image, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Audio } from "expo-av";
+import * as Sharing from "expo-sharing";
+import { captureRef } from "react-native-view-shot";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { Card, Loading } from "@/components/UI";
 import { WordsApi } from "@/api/endpoints";
 import { useFavorites } from "@/store/favorites";
 import { useHistory } from "@/store/history";
-import { font, spacing, ThemeColors, useThemeColors } from "@/theme";
+import { font, lightColors, spacing, ThemeColors, useThemeColors } from "@/theme";
 import type { Definition, Example, Translation } from "@/types";
 
 export default function WordDetailScreen({ route }: any) {
   const colors = useThemeColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const shareCardRef = useRef<View>(null);
+  const [sharing, setSharing] = useState(false);
   const { id } = route.params;
   const [showMore, setShowMore] = useState(false);
   const { data: word, isLoading } = useQuery({
@@ -37,15 +41,18 @@ export default function WordDetailScreen({ route }: any) {
   };
 
   const shareWord = async () => {
-    if (!word) return;
-    const lines = [word.part_of_speech ? `${word.term} (${word.part_of_speech})` : word.term];
-    if (word.fr_translation) lines.push(`Français : ${word.fr_translation}`);
-    if (word.definitions[0]) lines.push(word.definitions[0].text);
-    lines.push("", "Découvert sur Dictionnaire Koulango");
+    if (!word || !shareCardRef.current || sharing) return;
+    setSharing(true);
     try {
-      await Share.share({ message: lines.join("\n") });
+      const uri = await captureRef(shareCardRef, { format: "png", quality: 1 });
+      const available = await Sharing.isAvailableAsync();
+      if (available) {
+        await Sharing.shareAsync(uri, { mimeType: "image/png", dialogTitle: "Partager ce mot" });
+      }
     } catch {
-      // L'utilisateur a simplement annulé le partage.
+      Alert.alert("Erreur", "Partage impossible.");
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -102,8 +109,8 @@ export default function WordDetailScreen({ route }: any) {
             >
               <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={24} color={colors.favorite} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={shareWord} hitSlop={8}>
-              <Ionicons name="share-social-outline" size={22} color={colors.primaryDark} />
+            <TouchableOpacity onPress={shareWord} disabled={sharing} hitSlop={8}>
+              <Ionicons name="share-social-outline" size={22} color={sharing ? colors.border : colors.primaryDark} />
             </TouchableOpacity>
           </View>
           {hasMore && (
@@ -162,6 +169,26 @@ export default function WordDetailScreen({ route }: any) {
 
       {word.en_translation ? <Text style={styles.footerInfo}>Traduction anglaise : {word.en_translation}</Text> : null}
       {word.source ? <Text style={[styles.footerInfo, styles.italic]}>Ajouté par : {word.source}</Text> : null}
+
+      {/* Carte hors-écran, capturée en image PNG pour le partage. */}
+      <View style={styles.shareCardOffscreen} pointerEvents="none">
+        <View ref={shareCardRef} collapsable={false} style={shareCardStyles.card}>
+          <View style={shareCardStyles.brandRow}>
+            <Image source={require("../../assets/icon.png")} style={shareCardStyles.logo} />
+            <Text style={shareCardStyles.brand}>DICTIONNAIRE KOULANGO</Text>
+          </View>
+          <Text style={shareCardStyles.term}>{word.term}</Text>
+          {word.part_of_speech ? <Text style={shareCardStyles.pos}>({word.part_of_speech})</Text> : null}
+          {word.fr_translation ? (
+            <Text style={shareCardStyles.translation}>
+              <Text style={shareCardStyles.translationLabel}>Français : </Text>
+              {word.fr_translation}
+            </Text>
+          ) : null}
+          {firstDefinition ? <Text style={shareCardStyles.definition}>{firstDefinition.text}</Text> : null}
+          {firstExample ? <Text style={shareCardStyles.example}>« {firstExample.sentence} »</Text> : null}
+        </View>
+      </View>
     </ScrollView>
   );
 }
@@ -207,4 +234,23 @@ const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   moreText: { fontSize: font.small, fontWeight: "600", color: colors.primaryDark },
   footerInfo: { fontSize: font.small, color: colors.textMuted, marginTop: spacing.sm },
   italic: { fontStyle: "italic" },
+  shareCardOffscreen: { position: "absolute", top: 0, left: -9999 },
+});
+
+/** Style fixe (palette claire de la marque) pour la carte partagée en image,
+ * indépendant du thème clair/sombre de l'appareil qui la génère. */
+const shareCardStyles = StyleSheet.create({
+  card: {
+    width: 360, backgroundColor: lightColors.bg, padding: spacing.lg,
+    borderWidth: 1, borderColor: lightColors.border,
+  },
+  brandRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginBottom: spacing.lg },
+  logo: { width: 32, height: 32, borderRadius: 8 },
+  brand: { fontSize: font.tiny, fontWeight: "800", color: lightColors.accent, letterSpacing: 0.5 },
+  term: { fontSize: font.h1, fontWeight: "800", color: lightColors.primaryDark },
+  pos: { fontSize: font.small, color: lightColors.textMuted, fontStyle: "italic", marginTop: 2 },
+  translation: { fontSize: font.body, color: lightColors.text, marginTop: spacing.sm },
+  translationLabel: { fontWeight: "700", color: lightColors.accent },
+  definition: { fontSize: font.body, color: lightColors.text, marginTop: spacing.sm },
+  example: { fontSize: font.small, color: lightColors.textMuted, fontStyle: "italic", marginTop: spacing.sm },
 });
