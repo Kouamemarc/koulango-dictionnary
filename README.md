@@ -32,6 +32,19 @@ cache hors-ligne).
 
 ---
 
+## 📸 Captures d'écran
+
+<p align="center">
+  <img src="docs/screen-1.webp" width="260" alt="Accueil et recherche bidirectionnelle" />
+  <img src="docs/screen-2.webp" width="260" alt="Fiche détaillée d'un mot" />
+  <img src="docs/screen-3.webp" width="260" alt="Formulaire de proposition d'un mot" />
+</p>
+<p align="center">
+  <sub>Accueil & recherche · Fiche détaillée d'un mot · Proposition d'un mot</sub>
+</p>
+
+---
+
 ## ✨ Fonctionnalités
 
 **Côté mobile (sans compte)**
