@@ -2,17 +2,18 @@
 
 Dictionnaire collaboratif de la langue **Koulango** (Côte d'Ivoire).
 
-- 📱 **App mobile** (Android) : recherche bidirectionnelle koulango ↔ français,
-  fiches enrichies (traductions multiples, définitions, exemples, audio,
-  illustrations), favoris et historique locaux — **sans compte, sans
-  inscription**. Toute contribution est envoyée anonymement puis validée par
-  un modérateur avant publication.
+- 📱 **App mobile** (Android) et 🌐 **site web public** : même expérience,
+  recherche bidirectionnelle koulango ↔ français, fiches enrichies
+  (traductions multiples, définitions, exemples, audio, illustrations),
+  favoris et historique locaux — **sans compte, sans inscription**. Toute
+  contribution est envoyée anonymement puis validée par un modérateur avant
+  publication.
 - 🖥️ **Panneau d'administration web** : réservé aux modérateurs/administrateurs
   pour valider, éditer, fusionner ou supprimer des mots.
-- ⚙️ **API** FastAPI (Clean Architecture) partagée par les deux clients.
+- ⚙️ **API** FastAPI (Clean Architecture) partagée par tous les clients.
 
-> Monorepo à 3 applications : `backend/` (API) · `frontend/` (mobile Expo) ·
-> `web-admin/` (SPA React de modération).
+> Monorepo à 4 applications : `backend/` (API) · `frontend/` (mobile Expo) ·
+> `web/` (site public, sans compte) · `web-admin/` (SPA React de modération).
 
 ---
 
@@ -22,6 +23,7 @@ Dictionnaire collaboratif de la langue **Koulango** (Côte d'Ivoire).
 |-----|-----|-------------|
 | API | https://koulango-dictionnary.onrender.com | Render (Web Service) + Neon Postgres |
 | Documentation API (Swagger) | https://koulango-dictionnary.onrender.com/docs | — |
+| Site public (web) | à déployer — voir [Démarrage rapide](#-démarrage-rapide) | Render (Static Site) |
 | Admin web | https://koulango-dictionnary-1.onrender.com | Render (Static Site) |
 | App mobile | APK signé à sideloader (voir [Distribution mobile](#-distribution-mobile-android)) | — |
 
@@ -47,7 +49,7 @@ cache hors-ligne).
 
 ## ✨ Fonctionnalités
 
-**Côté mobile (sans compte)**
+**Côté mobile & web public (sans compte)**
 - Recherche instantanée bidirectionnelle (koulango → français et français → koulango)
 - Fiche détaillée : traductions multiples par mot (chacune avec son propre
   exemple et sa traduction), définitions, nature grammaticale (nom, verbe,
@@ -56,12 +58,13 @@ cache hors-ligne).
   avant envoi (« avez-vous voulu dire… ? »)
 - Prononciation audio : upload d'un fichier **ou** enregistrement direct au
   micro, envoyé uniquement au moment de la validation du formulaire
-- Favoris et historique de consultation — **100 % locaux à l'appareil**,
-  aucune donnée envoyée au serveur
-- Partage d'un mot sous forme d'image (carte générée à la volée) via le menu
-  de partage natif Android
+- Favoris et historique de consultation — **100 % locaux à l'appareil ou au
+  navigateur**, aucune donnée envoyée au serveur
+- Partage d'un mot (image sur mobile ; lien/texte via l'API native de partage
+  du navigateur sur le web)
 - Mode sombre (suit le système, ou basculé manuellement)
-- Fonctionne hors-ligne pour les mots déjà consultés (cache persistant)
+- Fonctionne hors-ligne pour les mots déjà consultés (cache persistant, mobile
+  uniquement)
 
 **Côté modération (web-admin)**
 - File d'attente des contributions en attente → accepter / refuser (motif
@@ -82,6 +85,7 @@ cache hors-ligne).
 | Couche | Technologies |
 |--------|--------------|
 | Mobile | React Native (Expo, prebuild géré) · TypeScript · React Navigation · React Query (persisté) · Zustand (favoris/historique/thème, persistés) · expo-av · expo-image-picker · react-native-view-shot |
+| Site public | React · Vite · TypeScript · React Router · React Query · Zustand (favoris/historique/thème, `localStorage`) |
 | Admin web | React · Vite · TypeScript · React Router · React Query |
 | API | FastAPI · SQLAlchemy 2 · Pydantic v2 · JWT · Alembic · Swagger/OpenAPI |
 | Base de données | PostgreSQL (Neon en prod, Docker en local) + `pg_trgm`, `fuzzystrmatch` |
@@ -121,6 +125,19 @@ npm start          # puis « a » (Android) ou QR code Expo Go
 > Sur émulateur Android, remplacer `localhost` par `10.0.2.2` dans la config
 > de l'URL d'API. Sur appareil physique, utiliser l'IP LAN de la machine (ou
 > pointer directement vers l'API déployée sur Render).
+
+### Site public (web)
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Mêmes fonctionnalités que l'app mobile (recherche, fiche détaillée,
+contribution avec audio/image, favoris/historique locaux, mode sombre), mais
+dans un navigateur — favoris/historique/thème sont stockés dans le
+`localStorage` du navigateur au lieu d'AsyncStorage.
 
 ### Admin web
 
@@ -269,6 +286,7 @@ pytest -q          # auth, santé, contributions/limitation de débit (SQLite en
 koulango-dictionary/
 ├── backend/          # API FastAPI (Clean Architecture)
 ├── frontend/         # App mobile Expo (Android, sans compte)
+├── web/              # Site public (React/Vite, sans compte, miroir du mobile)
 ├── web-admin/        # Panneau d'administration web (React/Vite)
 ├── docs/             # Documentation (architecture, API)
 ├── docker-compose.yml
