@@ -145,7 +145,7 @@ select { width: auto; }
   .app-panel {
     /* même fond que la page (pas --surface) pour garder le contraste avec
        les cartes internes (recherche, mots) qui, elles, utilisent --surface */
-    width: 100%; max-width: 680px; margin: 40px 20px 64px;
+    width: 100%; max-width: 960px; margin: 40px 20px 64px;
     background: var(--bg); border: 1px solid var(--border); border-radius: 28px;
     box-shadow: 0 30px 60px -25px var(--panel-shadow);
     overflow: hidden; align-self: flex-start;
