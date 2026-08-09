@@ -10,20 +10,22 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell">
-      <header className="app-header">
-        <NavLink to="/" className="brand">
-          <img src="/icon.png" alt="" />
-          <span className="brand-text">
-            <span className="l1">DICTIONNAIRE</span>
-            <span className="l2">KOULANGO</span>
-          </span>
-        </NavLink>
-        <button className="icon-btn" onClick={() => toggle(isDark)} aria-label="Changer de thème">
-          {isDark ? <SunIcon /> : <MoonIcon />}
-        </button>
-      </header>
+      <div className="app-panel">
+        <header className="app-header">
+          <NavLink to="/" className="brand">
+            <img src="/icon.png" alt="" />
+            <span className="brand-text">
+              <span className="l1">DICTIONNAIRE</span>
+              <span className="l2">KOULANGO</span>
+            </span>
+          </NavLink>
+          <button className="icon-btn" onClick={() => toggle(isDark)} aria-label="Changer de thème">
+            {isDark ? <SunIcon /> : <MoonIcon />}
+          </button>
+        </header>
 
-      <main className="page">{children}</main>
+        <main className="page">{children}</main>
+      </div>
 
       <nav className="bottom-nav">
         <div className="bottom-nav-inner">

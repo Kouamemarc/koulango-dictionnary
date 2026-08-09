@@ -11,6 +11,9 @@
   --border: #eadfc4;
   --danger: #b91c1c;
   --favorite: #7b341e;
+  --glow-1: rgba(27, 107, 61, 0.09);
+  --glow-2: rgba(139, 74, 30, 0.07);
+  --panel-shadow: rgba(36, 26, 16, 0.16);
 }
 
 :root[data-theme="dark"] {
@@ -25,14 +28,30 @@
   --border: #3a322a;
   --danger: #f87171;
   --favorite: #e08a5c;
+  --glow-1: rgba(63, 169, 108, 0.14);
+  --glow-2: rgba(209, 154, 106, 0.09);
+  --panel-shadow: rgba(0, 0, 0, 0.45);
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
+  min-height: 100vh;
   background: var(--bg);
   color: var(--text);
+}
+
+/* Sur grand écran, une ambiance de fond légère évite que la colonne de
+   contenu (pensée mobile-first) ne flotte dans un vide plat. */
+@media (min-width: 700px) {
+  body {
+    background:
+      radial-gradient(ellipse 900px 500px at 8% -10%, var(--glow-1), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 15%, var(--glow-2), transparent 55%),
+      var(--bg);
+    background-attachment: fixed;
+  }
 }
 
 a { color: inherit; }
@@ -71,11 +90,13 @@ select { width: auto; }
 
 .app-shell { min-height: 100vh; padding-bottom: 72px; }
 
+.app-panel { transition: background 0.3s, box-shadow 0.3s; }
+
 .app-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 16px; max-width: 640px; margin: 0 auto;
 }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; border-radius: 12px; }
 .brand img { width: 38px; height: 38px; border-radius: 9px; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
 .brand-text .l1 { font-size: 11px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
@@ -91,12 +112,38 @@ select { width: auto; }
 .bottom-nav-inner { display: flex; justify-content: space-around; width: 100%; max-width: 640px; }
 .nav-link {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
-  text-decoration: none; color: var(--muted); font-size: 11px; padding: 4px 10px; border-radius: 10px;
+  text-decoration: none; color: var(--muted); font-size: 11px; padding: 6px 14px; border-radius: 12px;
+  transition: background 0.15s, color 0.15s;
 }
+.nav-link:hover { background: var(--bg); color: var(--text); }
 .nav-link.active { color: var(--primary); font-weight: 700; }
+.nav-link.active:hover { background: transparent; }
 .nav-link svg { width: 22px; height: 22px; }
 
 .page { max-width: 640px; margin: 0 auto; padding: 8px 16px 24px; }
+
+/* Sur grand écran : la colonne mobile-first devient un panneau visible
+   (fond, bordure, ombre) au lieu de flotter dans un vide plat. */
+@media (min-width: 700px) {
+  .app-shell { padding-bottom: 96px; display: flex; justify-content: center; }
+  .app-panel {
+    /* même fond que la page (pas --surface) pour garder le contraste avec
+       les cartes internes (recherche, mots) qui, elles, utilisent --surface */
+    width: 100%; max-width: 680px; margin: 40px 20px 32px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 28px;
+    box-shadow: 0 30px 60px -25px var(--panel-shadow);
+    overflow: hidden; align-self: flex-start;
+  }
+  .app-header { max-width: none; margin: 0; padding: 20px 28px; border-bottom: 1px solid var(--border); }
+  .page { max-width: none; margin: 0; padding: 22px 28px 32px; }
+  .bottom-nav {
+    position: fixed; left: 50%; right: auto; bottom: 24px; transform: translateX(-50%);
+    width: auto; border-top: none; border-radius: 999px;
+    border: 1px solid var(--border); box-shadow: 0 16px 40px -18px var(--panel-shadow);
+    padding: 8px 10px;
+  }
+  .bottom-nav-inner { gap: 4px; }
+}
 
 /* ---------- Recherche ---------- */
 
@@ -104,7 +151,9 @@ select { width: auto; }
   display: flex; align-items: center; gap: 10px;
   background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
   padding: 12px 16px; margin-bottom: 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
+.search-bar:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--glow-1); }
 .search-bar input { border: none; padding: 0; background: transparent; flex: 1; }
 .search-bar input:focus { outline: none; }
 .search-bar svg { flex-shrink: 0; color: var(--muted); }
@@ -130,6 +179,12 @@ select { width: auto; }
   display: flex; align-items: center; gap: 12px;
   background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
   padding: 12px 14px; text-decoration: none; color: inherit;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.word-row:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px -14px var(--panel-shadow);
 }
 .word-thumb {
   width: 48px; height: 48px; border-radius: 12px; background: var(--border);
