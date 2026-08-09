@@ -88,61 +88,70 @@ select { width: auto; }
 
 /* ---------- Mise en page générale ---------- */
 
-.app-shell { min-height: 100vh; padding-bottom: 72px; }
+.app-shell { min-height: 100vh; }
 
 .app-panel { transition: background 0.3s, box-shadow 0.3s; }
 
 .app-header {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; gap: 8px;
   padding: 14px 16px; max-width: 640px; margin: 0 auto;
 }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; border-radius: 12px; }
-.brand img { width: 38px; height: 38px; border-radius: 9px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; border-radius: 12px; flex-shrink: 0; }
+.brand img { width: 36px; height: 36px; border-radius: 9px; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
-.brand-text .l1 { font-size: 11px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
-.brand-text .l2 { font-size: 16px; font-weight: 800; color: var(--accent); letter-spacing: 0.5px; }
+.brand-text .l1 { font-size: 10px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; }
+.brand-text .l2 { font-size: 15px; font-weight: 800; color: var(--accent); letter-spacing: 0.5px; }
 
-.bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  display: flex; justify-content: center; gap: 4px;
-  background: var(--surface); border-top: 1px solid var(--border);
-  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
-  z-index: 10;
-}
-.bottom-nav-inner { display: flex; justify-content: space-around; width: 100%; max-width: 640px; }
+/* Navigation en en-tête (pas de barre d'onglets en bas, façon site web plutôt
+   qu'app mobile) : liens juste après le logo, actions alignées à droite. */
+.top-nav { display: flex; align-items: center; gap: 2px; margin-right: auto; margin-left: 8px; }
 .nav-link {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  text-decoration: none; color: var(--muted); font-size: 11px; padding: 6px 14px; border-radius: 12px;
-  transition: background 0.15s, color 0.15s;
+  display: flex; align-items: center; gap: 6px;
+  text-decoration: none; color: var(--muted); font-size: 13px; font-weight: 600;
+  padding: 9px 12px; border-radius: 10px; transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
 }
-.nav-link:hover { background: var(--bg); color: var(--text); }
-.nav-link.active { color: var(--primary); font-weight: 700; }
-.nav-link.active:hover { background: transparent; }
-.nav-link svg { width: 22px; height: 22px; }
+.nav-link:hover { background: var(--surface); color: var(--text); }
+.nav-link.active { color: var(--primary); background: var(--surface); }
+.nav-link svg { width: 18px; height: 18px; flex-shrink: 0; }
 
-.page { max-width: 640px; margin: 0 auto; padding: 8px 16px 24px; }
+.header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.contribute-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--primary); color: #fff; text-decoration: none;
+  padding: 9px 16px; border-radius: 999px; font-size: 13px; font-weight: 700;
+  transition: background 0.15s, transform 0.15s; white-space: nowrap;
+}
+.contribute-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+.contribute-btn.active { background: var(--primary-dark); }
+
+.page { max-width: 640px; margin: 0 auto; padding: 8px 16px 32px; }
+
+@media (max-width: 460px) {
+  .app-header { padding: 10px 12px; gap: 4px; }
+  .brand img { width: 32px; height: 32px; }
+  .brand-text .l1 { font-size: 8px; }
+  .brand-text .l2 { font-size: 12px; }
+  .top-nav { margin-left: 2px; }
+  .nav-link span, .contribute-btn span { display: none; }
+  .nav-link { padding: 9px; }
+  .contribute-btn { padding: 9px; }
+}
 
 /* Sur grand écran : la colonne mobile-first devient un panneau visible
    (fond, bordure, ombre) au lieu de flotter dans un vide plat. */
 @media (min-width: 700px) {
-  .app-shell { padding-bottom: 96px; display: flex; justify-content: center; }
+  .app-shell { display: flex; justify-content: center; }
   .app-panel {
     /* même fond que la page (pas --surface) pour garder le contraste avec
        les cartes internes (recherche, mots) qui, elles, utilisent --surface */
-    width: 100%; max-width: 680px; margin: 40px 20px 32px;
+    width: 100%; max-width: 680px; margin: 40px 20px 64px;
     background: var(--bg); border: 1px solid var(--border); border-radius: 28px;
     box-shadow: 0 30px 60px -25px var(--panel-shadow);
     overflow: hidden; align-self: flex-start;
   }
-  .app-header { max-width: none; margin: 0; padding: 20px 28px; border-bottom: 1px solid var(--border); }
+  .app-header { max-width: none; margin: 0; padding: 18px 28px; border-bottom: 1px solid var(--border); }
   .page { max-width: none; margin: 0; padding: 22px 28px 32px; }
-  .bottom-nav {
-    position: fixed; left: 50%; right: auto; bottom: 24px; transform: translateX(-50%);
-    width: auto; border-top: none; border-radius: 999px;
-    border: 1px solid var(--border); box-shadow: 0 16px 40px -18px var(--panel-shadow);
-    padding: 8px 10px;
-  }
-  .bottom-nav-inner { gap: 4px; }
 }
 
 /* ---------- Recherche ---------- */

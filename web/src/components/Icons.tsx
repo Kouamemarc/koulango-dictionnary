@@ -36,8 +36,8 @@ export const MoonIcon = (p: IconProps) => (
 export const HomeIcon = (p: IconProps) => (
   <svg {...base(p)}><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /></svg>
 );
-export const PlusCircleIcon = (p: IconProps) => (
-  <svg {...base(p)}><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></svg>
+export const PlusIcon = (p: IconProps) => (
+  <svg {...base(p)}><path d="M12 5v14M5 12h14" /></svg>
 );
 export const ClockIcon = (p: IconProps) => (
   <svg {...base(p)}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>
