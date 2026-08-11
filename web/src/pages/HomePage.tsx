@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { WordsApi } from "../api/endpoints";
 import { WordListItem } from "../components/WordListItem";
-import { SearchIcon, MicIcon, SwapIcon } from "../components/Icons";
+import { SearchIcon, MicIcon, SwapIcon, ChevronIcon } from "../components/Icons";
 import type { Lang } from "../api/types";
 
 export default function HomePage() {
@@ -21,8 +22,32 @@ export default function HomePage() {
 
   const { data, isLoading } = isSearching ? search : list;
 
+  // Un mot par jour, identique pour tout le monde (index déterministe basé sur
+  // la date, pas un tirage aléatoire par visiteur). Reste affiché depuis le
+  // cache même pendant une recherche (la requête "list" n'est plus refetchée
+  // mais garde ses dernières données).
+  const wordOfDay = useMemo(() => {
+    if (!list.data || list.data.length === 0) return null;
+    const dayIndex = Math.floor(Date.now() / 86_400_000);
+    return list.data[dayIndex % list.data.length];
+  }, [list.data]);
+
   return (
     <>
+      {!isSearching && wordOfDay && (
+        <Link to={`/mots/${wordOfDay.id}`} className="word-of-day">
+          <div>
+            <div className="word-of-day-label">✨ Mot du jour</div>
+            <div className="word-of-day-term">
+              {wordOfDay.term}
+              {wordOfDay.part_of_speech ? <span className="pos"> ({wordOfDay.part_of_speech})</span> : null}
+            </div>
+            {wordOfDay.fr_translation ? <div className="word-of-day-translation">{wordOfDay.fr_translation}</div> : null}
+          </div>
+          <ChevronIcon color="#fff" />
+        </Link>
+      )}
+
       <div className="search-bar">
         <SearchIcon size={18} />
         <input

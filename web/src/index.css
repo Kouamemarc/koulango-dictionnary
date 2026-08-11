@@ -145,7 +145,7 @@ select { width: auto; }
   .app-panel {
     /* même fond que la page (pas --surface) pour garder le contraste avec
        les cartes internes (recherche, mots) qui, elles, utilisent --surface */
-    width: 100%; max-width: 960px; margin: 40px 20px 64px;
+    width: 100%; max-width: 700px; margin: 40px 20px 64px;
     background: var(--bg); border: 1px solid var(--border); border-radius: 28px;
     box-shadow: 0 30px 60px -25px var(--panel-shadow);
     overflow: hidden; align-self: flex-start;
@@ -180,6 +180,20 @@ select { width: auto; }
 }
 
 .empty-state { text-align: center; color: var(--muted); margin-top: 32px; font-size: 14px; }
+
+.word-of-day {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff; text-decoration: none;
+  border-radius: 20px; padding: 16px 18px; margin-bottom: 14px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.word-of-day:hover { transform: translateY(-1px); box-shadow: 0 14px 30px -16px var(--panel-shadow); }
+.word-of-day-label { font-size: 11px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; opacity: 0.85; }
+.word-of-day-term { font-size: 19px; font-weight: 800; margin-top: 3px; }
+.word-of-day-term .pos { font-size: 13px; font-weight: 500; font-style: italic; opacity: 0.85; }
+.word-of-day-translation { font-size: 14px; opacity: 0.9; margin-top: 2px; }
+.word-of-day svg { flex-shrink: 0; opacity: 0.85; }
 
 /* ---------- Liste de mots ---------- */
 
