@@ -62,6 +62,10 @@ cache hors-ligne).
   navigateur**, aucune donnée envoyée au serveur
 - Partage d'un mot (image sur mobile ; lien/texte via l'API native de partage
   du navigateur sur le web)
+- Site web installable comme une app (PWA) : bouton d'installation natif sur
+  Android/Chrome/Edge, instructions manuelles (« Partager → Sur l'écran
+  d'accueil ») sur iOS Safari ; une fois installée, lancement en plein écran
+  sans barre de navigateur
 - Mode sombre (suit le système, ou basculé manuellement)
 - Fonctionne hors-ligne pour les mots déjà consultés (cache persistant, mobile
   uniquement)
@@ -85,7 +89,7 @@ cache hors-ligne).
 | Couche | Technologies |
 |--------|--------------|
 | Mobile | React Native (Expo, prebuild géré) · TypeScript · React Navigation · React Query (persisté) · Zustand (favoris/historique/thème, persistés) · expo-av · expo-image-picker · react-native-view-shot |
-| Site public | React · Vite · TypeScript · React Router · React Query · Zustand (favoris/historique/thème, `localStorage`) |
+| Site public | React · Vite · TypeScript · React Router · React Query · Zustand (favoris/historique/thème, `localStorage`) · `vite-plugin-pwa` (manifest + service worker) |
 | Admin web | React · Vite · TypeScript · React Router · React Query |
 | API | FastAPI · SQLAlchemy 2 · Pydantic v2 · JWT · Alembic · Swagger/OpenAPI |
 | Base de données | PostgreSQL (Neon en prod, Docker en local) + `pg_trgm`, `fuzzystrmatch` |
@@ -177,6 +181,31 @@ sur un vrai téléphone (~47 Mo au lieu de ~75 Mo).
 **iOS** : nécessite un compte Apple Developer Program (payant) — il n'existe
 pas d'équivalent au sideload Android pour un appareil réel. Non disponible
 pour l'instant.
+
+---
+
+## 📲 Installation du site web (PWA)
+
+Le site public (`web/`) est une **PWA installable**, sans passer par un store :
+
+- **Manifest + service worker** générés par `vite-plugin-pwa` (`web/vite.config.ts`)
+  au build (`sw.js`, `manifest.webmanifest`), avec précache des assets pour un
+  chargement quasi instantané et un lancement possible hors connexion.
+- **Icônes** (`web/public/`) : `pwa-192x192.png`, `pwa-512x512.png`,
+  `maskable-icon-512x512.png` (zone de sécurité pour le recadrage Android),
+  `apple-touch-icon.png`, `favicon-32x32.png` — générées depuis `icon.png`.
+- **Bandeau d'installation** (`InstallBanner.tsx` + `useInstallPrompt.ts`) :
+  - Android/Chrome/Edge : bouton « Installer » qui déclenche l'invite native
+    (événement `beforeinstallprompt`).
+  - iOS/iPadOS Safari : instructions manuelles (« Partager → Sur l'écran
+    d'accueil ») — Apple n'expose aucune API pour déclencher l'installation
+    par code, et cela ne fonctionne que dans Safari lui-même (pas dans un
+    navigateur intégré à une app comme Instagram ou Gmail).
+  - Masqué automatiquement si l'app est déjà installée, ou après fermeture
+    manuelle par l'utilisateur (mémorisé en `localStorage`).
+
+L'installation nécessite HTTPS (ou `localhost` en dev) — pas de PWA
+installable en HTTP simple sur une IP LAN.
 
 ---
 
