@@ -154,6 +154,21 @@ select { width: auto; }
   .page { max-width: none; margin: 0; padding: 22px 28px 32px; }
 }
 
+/* ---------- Bannière d'installation PWA ---------- */
+
+.install-banner {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+  padding: 12px 14px; margin-bottom: 14px;
+}
+.install-banner-icon { width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0; object-fit: cover; }
+.install-banner-text { flex: 1; min-width: 160px; display: flex; flex-direction: column; gap: 2px; }
+.install-banner-text strong { font-size: 14px; font-weight: 700; }
+.install-banner-text span { font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+.install-banner-text span svg { flex-shrink: 0; }
+.install-banner-btn { flex-shrink: 0; padding: 9px 14px; font-size: 13px; }
+.install-banner-close { flex-shrink: 0; margin-left: auto; }
+
 /* ---------- Recherche ---------- */
 
 .search-bar {

@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useIsDark } from "../useIsDark";
 import { useThemePreference } from "../store/themePreference";
 import { HomeIcon, PlusIcon, HeartIcon, ClockIcon, SunIcon, MoonIcon } from "./Icons";
+import { InstallBanner } from "./InstallBanner";
 
 export function Layout({ children }: { children: ReactNode }) {
   const isDark = useIsDark();
@@ -46,7 +47,10 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="page">{children}</main>
+        <main className="page">
+          <InstallBanner />
+          {children}
+        </main>
       </div>
     </div>
   );
