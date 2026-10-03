@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { WordsApi } from "../api/endpoints";
 import { WordListItem } from "../components/WordListItem";
-import { SearchIcon, MicIcon, SwapIcon, ChevronIcon } from "../components/Icons";
+import { SearchIcon, MicIcon, SwapIcon, ChevronIcon, ChatIcon } from "../components/Icons";
 import type { Lang } from "../api/types";
 
 export default function HomePage() {
@@ -69,9 +69,26 @@ export default function HomePage() {
 
       {isLoading && <p className="empty-state">Chargement…</p>}
       {!isLoading && (data ?? []).length === 0 && (
-        <p className="empty-state">
-          {isSearching ? `Aucun résultat pour « ${q} ».` : "Aucun mot publié pour l'instant."}
-        </p>
+        isSearching ? (
+          // Mot introuvable : on propose directement de l'ajouter, guidé par l'assistant.
+          <div className="missing-word">
+            <p>
+              « {q.trim()} » n'est pas encore dans le dictionnaire.
+              <br />
+              Vous le connaissez ? Aidez-nous à l'ajouter !
+            </p>
+            <Link
+              to={`/assistant?${new URLSearchParams({ terme: q.trim(), langue: lang })}`}
+              className="missing-word-cta"
+            >
+              <ChatIcon size={18} />
+              Ajouter ce mot avec l'assistant
+            </Link>
+            <Link to="/contribuer" className="missing-word-alt">ou remplir le formulaire</Link>
+          </div>
+        ) : (
+          <p className="empty-state">Aucun mot publié pour l'instant.</p>
+        )
       )}
       <ul className="word-list">
         {(data ?? []).map((item) => (

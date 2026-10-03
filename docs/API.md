@@ -21,6 +21,7 @@ Base : `http://localhost:8000/api/v1` · Documentation interactive : `/docs` (Sw
 |---------|----------|------|-------------|
 | GET | `/contributions/check?term=` | connecté | Vérification intelligente |
 | POST | `/contributions` | connecté | Proposer un mot (EN_ATTENTE_VALIDATION) |
+| POST | `/assistant/chat` | public | Assistant conversationnel (Claude) : renvoie `reply` + `draft` (proposition à confirmer) |
 
 ## Favoris & historique
 | Méthode | Endpoint |

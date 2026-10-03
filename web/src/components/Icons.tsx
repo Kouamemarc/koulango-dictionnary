@@ -48,3 +48,9 @@ export const CloseCircleIcon = (p: IconProps) => (
 export const ChevronIcon = ({ up, ...p }: IconProps & { up?: boolean }) => (
   <svg {...base(p)} style={{ transform: up ? "rotate(-90deg)" : undefined }}><path d="M9 6l6 6-6 6" /></svg>
 );
+export const SendIcon = (p: IconProps) => (
+  <svg {...base(p)}><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+);
+export const ChatIcon = (p: IconProps) => (
+  <svg {...base(p)}><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /></svg>
+);

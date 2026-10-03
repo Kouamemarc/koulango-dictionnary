@@ -12,6 +12,7 @@ import WordDetailScreen from "@/screens/WordDetailScreen";
 import AddWordScreen from "@/screens/AddWordScreen";
 import FavoritesScreen from "@/screens/FavoritesScreen";
 import HistoryScreen from "@/screens/HistoryScreen";
+import AssistantScreen from "@/screens/AssistantScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -72,6 +73,11 @@ export default function RootNavigator() {
           name="WordDetail"
           component={WordDetailScreen}
           options={{ title: "Fiche du mot", headerRight: () => <ThemeToggleButton /> }}
+        />
+        <Stack.Screen
+          name="Assistant"
+          component={AssistantScreen}
+          options={{ title: "Assistant d'ajout", headerRight: () => <ThemeToggleButton /> }}
         />
       </Stack.Navigator>
     </NavigationContainer>

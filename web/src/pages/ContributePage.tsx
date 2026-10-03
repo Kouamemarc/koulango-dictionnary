@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
 import type { ChangeEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ContributionsApi, MediaApi } from "../api/endpoints";
-import { CloseCircleIcon } from "../components/Icons";
+import { ChatIcon, CloseCircleIcon } from "../components/Icons";
 import type { Suggestion, TranslationLang, WordCreate } from "../api/types";
 
 type EntryType = "mot" | "expression";
@@ -161,6 +161,14 @@ export default function ContributePage() {
   return (
     <>
       <h1 style={{ fontSize: 20, marginTop: 0 }}>Proposition de mot ou expression</h1>
+
+      <Link to="/assistant" className="assistant-banner">
+        <ChatIcon size={22} />
+        <span>
+          <strong>Besoin d'aide ?</strong>
+          <span>Répondez à quelques questions, l'assistant remplit la fiche pour vous.</span>
+        </span>
+      </Link>
 
       <div className="type-toggle">
         <button className={entryType === "mot" ? "active" : ""} onClick={() => setEntryType("mot")}>Mot</button>

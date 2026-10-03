@@ -169,6 +169,14 @@ export default function AddWordScreen({ navigation }: any) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing.md }}>
+      <TouchableOpacity style={styles.assistantBanner} onPress={() => navigation.navigate("Assistant")}>
+        <Ionicons name="chatbubble-ellipses-outline" size={22} color={colors.primary} />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.assistantTitle}>Besoin d'aide ?</Text>
+          <Text style={styles.assistantText}>Répondez à quelques questions, l'assistant remplit la fiche pour vous.</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+      </TouchableOpacity>
       <View style={styles.typeRow}>
         <TouchableOpacity
           style={[styles.typeBtn, entryType === "mot" && styles.typeBtnActive]}
@@ -329,6 +337,13 @@ export default function AddWordScreen({ navigation }: any) {
 }
 
 const makeStyles = (colors: ThemeColors) => StyleSheet.create({
+  assistantBanner: {
+    flexDirection: "row", alignItems: "center", gap: spacing.sm,
+    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.primary,
+    borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.md,
+  },
+  assistantTitle: { fontSize: font.small, fontWeight: "700", color: colors.primary },
+  assistantText: { fontSize: 13, color: colors.textMuted, marginTop: 2 },
   container: { flex: 1, backgroundColor: colors.bg },
   label: { fontSize: font.small, color: colors.textMuted, marginBottom: 6, fontWeight: "500" },
   hint: { fontSize: font.small, color: colors.textMuted, marginTop: 6 },

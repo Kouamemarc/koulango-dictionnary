@@ -14,6 +14,9 @@ services:
         value: "false"
       - key: BACKEND_CORS_ORIGINS
         value: '["*"]'
+      # Clé API Claude pour l'assistant d'ajout de mots (vide = assistant désactivé)
+      - key: ANTHROPIC_API_KEY
+        sync: false
 
   - type: web
     name: koulango-admin

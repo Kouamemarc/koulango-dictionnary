@@ -56,6 +56,15 @@ cache hors-ligne).
   adjectif…), prononciation phonétique, audio et illustration
 - Proposer un mot ou une expression : vérification intelligente anti-doublon
   avant envoi (« avez-vous voulu dire… ? »)
+- Assistant d'ajout conversationnel (API Claude) : au lieu de remplir le
+  formulaire, le contributeur répond à quelques questions simples ; l'assistant
+  vérifie les doublons, traduit automatiquement la traduction française en
+  anglais, demande la prononciation, puis invite à joindre un enregistrement
+  audio et une image d'illustration (recommandés, facultatifs) directement
+  depuis le récapitulatif à confirmer avant envoi. Il ne génère
+  jamais de texte koulango : celui-ci vient toujours du contributeur
+- Recherche sans résultat : proposition directe d'ajouter le mot manquant
+  (via l'assistant, qui démarre avec le mot recherché, ou via le formulaire)
 - Prononciation audio : upload d'un fichier **ou** enregistrement direct au
   micro, envoyé uniquement au moment de la validation du formulaire
 - Favoris et historique de consultation — **100 % locaux à l'appareil ou au
@@ -81,6 +90,10 @@ cache hors-ligne).
   d'un mot avant création
 - Limitation de débit anti-spam sur les contributions anonymes (10 par IP /
   6h, sauf modérateur/administrateur authentifié)
+- `POST /assistant/chat` : assistant conversationnel adossé à l'API Claude
+  (`ANTHROPIC_API_KEY`, modèle `ASSISTANT_MODEL`, 60 messages par IP et par
+  heure par défaut via `ASSISTANT_RATE_LIMIT_PER_HOUR`). Sans clé, l'endpoint
+  répond 503 et le reste de l'API fonctionne normalement
 
 ---
 

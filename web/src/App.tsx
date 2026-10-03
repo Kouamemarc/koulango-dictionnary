@@ -5,6 +5,7 @@ import { useIsDark } from "./useIsDark";
 import HomePage from "./pages/HomePage";
 import WordDetailPage from "./pages/WordDetailPage";
 import ContributePage from "./pages/ContributePage";
+import AssistantPage from "./pages/AssistantPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import HistoryPage from "./pages/HistoryPage";
 
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/mots/:id" element={<WordDetailPage />} />
         <Route path="/contribuer" element={<ContributePage />} />
+        <Route path="/assistant" element={<AssistantPage />} />
         <Route path="/favoris" element={<FavoritesPage />} />
         <Route path="/historique" element={<HistoryPage />} />
       </Routes>

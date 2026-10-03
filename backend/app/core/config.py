@@ -42,6 +42,13 @@ class Settings(BaseSettings):
     STORAGE_BUCKET: str = "koulango-media"
     STORAGE_PUBLIC_URL: str = ""
 
+    # --- Assistant conversationnel (API Claude) ---
+    # Vide = assistant désactivé (l'endpoint répond 503, le reste de l'API fonctionne).
+    ANTHROPIC_API_KEY: str = ""
+    ASSISTANT_MODEL: str = "claude-opus-5-5"
+    # Anti-abus : nombre de messages envoyés à l'assistant par IP et par heure.
+    ASSISTANT_RATE_LIMIT_PER_HOUR: int = 60
+
 
 @lru_cache
 def get_settings() -> Settings:

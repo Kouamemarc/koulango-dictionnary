@@ -69,3 +69,14 @@ export interface WordCreate {
   translations?: { language: TranslationLang; text: string; example?: string; example_translation?: string }[];
   force_create?: boolean;
 }
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+  /** Proposition prête à envoyer à POST /contributions, après confirmation. */
+  draft: WordCreate | null;
+}
