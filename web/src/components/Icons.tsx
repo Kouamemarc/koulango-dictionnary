@@ -54,3 +54,18 @@ export const SendIcon = (p: IconProps) => (
 export const ChatIcon = (p: IconProps) => (
   <svg {...base(p)}><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /></svg>
 );
+export const MenuIcon = (p: IconProps) => (
+  <svg {...base(p)}><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+);
+export const CloseIcon = (p: IconProps) => (
+  <svg {...base(p)}><path d="M6 6l12 12M18 6L6 18" /></svg>
+);
+export const InfoIcon = (p: IconProps) => (
+  <svg {...base(p)}><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>
+);
+export const ShieldIcon = (p: IconProps) => (
+  <svg {...base(p)}><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z" /><path d="M9 12l2 2 4-4" /></svg>
+);
+export const MailIcon = (p: IconProps) => (
+  <svg {...base(p)}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg>
+);

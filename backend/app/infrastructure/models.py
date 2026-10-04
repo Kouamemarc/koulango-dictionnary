@@ -307,3 +307,20 @@ class MediaFile(Base, TimestampMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     content_type: Mapped[str] = mapped_column(String(100), nullable=False)
     data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+
+
+# --------------------------------------------------------------------------- #
+#  Messages des visiteurs : contact du développeur, demandes de modérateur
+# --------------------------------------------------------------------------- #
+class Message(Base, TimestampMixin):
+    __tablename__ = "messages"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    kind: Mapped[str] = mapped_column(String(20), nullable=False, index=True)  # "contact" | "moderateur"
+    name: Mapped[str | None] = mapped_column(String(120))
+    contact: Mapped[str | None] = mapped_column(String(200))  # e-mail ou téléphone/WhatsApp
+    region: Mapped[str | None] = mapped_column(String(120))
+    koulango_level: Mapped[str | None] = mapped_column(String(60))
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    ip_address: Mapped[str | None] = mapped_column(String(45), index=True)  # limitation de débit anti-spam
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False, index=True)

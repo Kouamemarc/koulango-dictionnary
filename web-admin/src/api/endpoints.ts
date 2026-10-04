@@ -1,6 +1,7 @@
 import { api } from "./client";
 import type {
-  ImportImage, ImportResponse, PendingContribution, TokenPair, User, WordCreate, WordDetail, WordEdit, WordSummary,
+  ImportImage, ImportResponse, PendingContribution, TokenPair, User, VisitorMessage, WordCreate, WordDetail, WordEdit,
+  WordSummary,
 } from "./types";
 
 export const AuthApi = {
@@ -22,6 +23,9 @@ export const AdminApi = {
   createWord: (body: WordCreate) => api.post<WordDetail>("/admin/words", body).then((r) => r.data),
   updateWord: (id: number, body: WordEdit) => api.put<WordDetail>(`/admin/words/${id}`, body).then((r) => r.data),
   deleteWord: (id: number) => api.delete(`/admin/words/${id}`),
+  messages: () => api.get<VisitorMessage[]>("/admin/messages").then((r) => r.data),
+  markMessageRead: (id: number, read: boolean) =>
+    api.post<VisitorMessage>(`/admin/messages/${id}/read`, null, { params: { read } }).then((r) => r.data),
   // Analyse par l'IA (texte + images) : nettement plus long qu'un appel classique.
   importExtract: (body: { text: string; images: ImportImage[] }) =>
     api.post<ImportResponse>("/admin/import/extract", body, { timeout: 180000 }).then((r) => r.data),

@@ -141,3 +141,15 @@ select { flex: 0 0 auto; }
 .badge-new { background: color-mix(in srgb, var(--primary) 18%, var(--surface)); color: var(--primary); }
 .badge-exists { background: color-mix(in srgb, var(--danger) 15%, var(--surface)); color: var(--danger); }
 .badge-similar { background: #fef3c7; color: #92400e; }
+
+/* ---------- Messages des visiteurs ---------- */
+
+.nav-tabs { flex-wrap: wrap; }
+.message-card { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 10px; padding: 14px 16px; }
+.message-read { border-left-color: var(--border); opacity: 0.8; }
+.message-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.message-head .badge { margin-left: 0; }
+.message-body { white-space: pre-wrap; margin: 10px 0; font-size: 15px; line-height: 1.5; }
+.message-meta { margin: 0 0 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 6px 16px; font-size: 13px; }
+.message-meta dt { color: var(--muted); }
+.message-meta dd { margin: 0; overflow-wrap: anywhere; }

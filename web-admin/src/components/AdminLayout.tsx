@@ -21,6 +21,7 @@ export function AdminLayout({ title, children }: { title: string; children: Reac
         <Link className={tabClass("/words")} to="/words">Mots</Link>
         <Link className={tabClass("/words/new")} to="/words/new">Ajouter un mot</Link>
         <Link className={tabClass("/import")} to="/import">Importer une publication</Link>
+        <Link className={tabClass("/messages")} to="/messages">Messages</Link>
       </nav>
       {children}
     </div>

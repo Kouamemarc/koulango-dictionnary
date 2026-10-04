@@ -1,5 +1,7 @@
 import { api } from "./client";
-import type { ChatMessage, ChatResponse, Lang, SmartCheckResponse, WordCreate, WordDetail, WordSummary } from "./types";
+import type {
+  ChatMessage, ChatResponse, Lang, MessageCreate, SmartCheckResponse, WordCreate, WordDetail, WordSummary,
+} from "./types";
 
 export const WordsApi = {
   list: () => api.get<WordSummary[]>("/words").then((r) => r.data),
@@ -18,6 +20,10 @@ export const AssistantApi = {
   // Plusieurs allers-retours avec Claude (+ réveil éventuel de Render) : timeout plus large.
   chat: (messages: ChatMessage[]) =>
     api.post<ChatResponse>("/assistant/chat", { messages }, { timeout: 90000 }).then((r) => r.data),
+};
+
+export const MessagesApi = {
+  send: (body: MessageCreate) => api.post("/messages", body).then((r) => r.data),
 };
 
 export const MediaApi = {

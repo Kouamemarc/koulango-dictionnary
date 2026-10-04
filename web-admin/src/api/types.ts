@@ -26,6 +26,18 @@ export interface PendingContribution {
   ai_consent: boolean | null;
 }
 
+export interface VisitorMessage {
+  id: number;
+  kind: "contact" | "moderateur";
+  name: string | null;
+  contact: string | null;
+  region: string | null;
+  koulango_level: string | null;
+  body: string;
+  is_read: boolean;
+  created_at: string;
+}
+
 export interface ImportImage {
   media_type: "image/png" | "image/jpeg" | "image/webp" | "image/gif";
   data: string;

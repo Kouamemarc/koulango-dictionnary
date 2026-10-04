@@ -1,18 +1,25 @@
+import { useCallback, useState } from "react";
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { useIsDark } from "../useIsDark";
 import { useThemePreference } from "../store/themePreference";
-import { HomeIcon, PlusIcon, HeartIcon, ClockIcon, SunIcon, MoonIcon } from "./Icons";
+import { HomeIcon, PlusIcon, HeartIcon, ClockIcon, SunIcon, MoonIcon, MenuIcon } from "./Icons";
+import { SideMenu } from "./SideMenu";
 import { InstallBanner } from "./InstallBanner";
 
 export function Layout({ children }: { children: ReactNode }) {
   const isDark = useIsDark();
   const toggle = useThemePreference((s) => s.toggle);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   return (
     <div className="app-shell">
       <div className="app-panel">
         <header className="app-header">
+          <button className="icon-btn menu-btn" onClick={() => setMenuOpen(true)} aria-label="Ouvrir le menu">
+            <MenuIcon />
+          </button>
           <NavLink to="/" className="brand">
             <img src="/icon.png" alt="" />
             <span className="brand-text">
@@ -52,6 +59,7 @@ export function Layout({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+      <SideMenu open={menuOpen} onClose={closeMenu} />
     </div>
   );
 }

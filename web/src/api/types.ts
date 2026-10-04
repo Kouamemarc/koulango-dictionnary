@@ -82,3 +82,15 @@ export interface ChatResponse {
   /** Proposition prête à envoyer à POST /contributions, après confirmation. */
   draft: WordCreate | null;
 }
+
+export type MessageKind = "contact" | "moderateur";
+
+export interface MessageCreate {
+  kind: MessageKind;
+  name?: string;
+  /** E-mail ou téléphone/WhatsApp. */
+  contact?: string;
+  region?: string;
+  koulango_level?: string;
+  body: string;
+}
