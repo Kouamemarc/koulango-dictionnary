@@ -95,6 +95,11 @@ class WordRepository:
         """Suggestions floues pour la vérification avant création.
 
         Utilise pg_trgm (similarity) ET Levenshtein en une seule requête SQL.
+
+        La distance de Levenshtein tolérée est proportionnelle à la longueur
+        (1 modification pour 4 lettres, au moins 1, au plus `max_distance`) :
+        une distance fixe de 3 rendait « proches » des mots courts sans rapport
+        (ex. « slau » et « mál », à 3 modifications l'un de l'autre).
         """
         norm = normalize(term)
         sql = text(
@@ -107,7 +112,10 @@ class WordRepository:
             WHERE status <> 'REJECTED'
               AND (
                     similarity(normalized, :norm) >= :threshold
-                 OR levenshtein(normalized, :norm) <= :max_distance
+                 OR levenshtein(normalized, :norm) <= LEAST(
+                        :max_distance,
+                        GREATEST(1, GREATEST(length(normalized), length(:norm)) / 4)
+                    )
               )
             ORDER BY sim DESC, dist ASC
             LIMIT :limit
