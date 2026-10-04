@@ -113,7 +113,7 @@ cache hors-ligne).
   Android/Chrome/Edge, instructions manuelles (« Partager → Sur l'écran
   d'accueil ») sur iOS Safari ; une fois installée, lancement en plein écran
   sans barre de navigateur
-- Menu latéral (bouton ☰ en haut à gauche, site web) : « À propos » présente
+- Menu latéral (bouton ☰ en haut à gauche, site web et app mobile) : « À propos » présente
   le dictionnaire et sa mission, « Devenir modérateur » (formulaire de
   candidature) et « Contacter le développeur » (idées, problèmes) ; les
   messages arrivent dans l'onglet « Messages » de l'admin, sans exposer

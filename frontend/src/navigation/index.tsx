@@ -7,12 +7,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { useIsDark, useThemeColors } from "@/theme";
 import { HeaderLogo } from "@/components/HeaderLogo";
 import { ThemeToggleButton } from "@/components/ThemeToggleButton";
+import { MenuButton } from "@/components/SideMenu";
 import SearchScreen from "@/screens/SearchScreen";
 import WordDetailScreen from "@/screens/WordDetailScreen";
 import AddWordScreen from "@/screens/AddWordScreen";
 import FavoritesScreen from "@/screens/FavoritesScreen";
 import HistoryScreen from "@/screens/HistoryScreen";
 import AssistantScreen from "@/screens/AssistantScreen";
+import AboutScreen from "@/screens/AboutScreen";
+import ModeratorScreen from "@/screens/ModeratorScreen";
+import ContactScreen from "@/screens/ContactScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -29,6 +33,7 @@ function Tabs() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
+        headerLeft: () => <MenuButton />,
         headerRight: () => <ThemeToggleButton />,
       }}
     >
@@ -78,6 +83,21 @@ export default function RootNavigator() {
           name="Assistant"
           component={AssistantScreen}
           options={{ title: "Assistant d'ajout", headerRight: () => <ThemeToggleButton /> }}
+        />
+        <Stack.Screen
+          name="About"
+          component={AboutScreen}
+          options={{ title: "À propos", headerRight: () => <ThemeToggleButton /> }}
+        />
+        <Stack.Screen
+          name="Moderator"
+          component={ModeratorScreen}
+          options={{ title: "Devenir modérateur", headerRight: () => <ThemeToggleButton /> }}
+        />
+        <Stack.Screen
+          name="Contact"
+          component={ContactScreen}
+          options={{ title: "Contacter le développeur", headerRight: () => <ThemeToggleButton /> }}
         />
       </Stack.Navigator>
     </NavigationContainer>
