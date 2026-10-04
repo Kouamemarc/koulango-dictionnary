@@ -229,6 +229,10 @@ class Contribution(Base, TimestampMixin):
     payload: Mapped[str | None] = mapped_column(Text)  # snapshot JSON de la proposition
     status: Mapped[WordStatus] = mapped_column(Enum(WordStatus), default=WordStatus.PENDING, index=True)
     ip_address: Mapped[str | None] = mapped_column(String(45), index=True)  # limitation de débit anti-spam
+    # Accord du contributeur pour publier sa contribution (audio compris) et l'utiliser
+    # pour développer une IA koulango. None = contribution antérieure à la question.
+    ai_consent: Mapped[bool | None] = mapped_column(Boolean)
+    consent_version: Mapped[str | None] = mapped_column(String(20))  # version du texte accepté
 
     author: Mapped["User | None"] = relationship(back_populates="contributions")
     validation: Mapped["Validation"] = relationship(

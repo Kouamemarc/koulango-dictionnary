@@ -98,6 +98,9 @@ cache hors-ligne).
   audio et une image d'illustration (recommandés, facultatifs) directement
   depuis le récapitulatif à confirmer avant envoi. Il ne génère
   jamais de texte koulango : celui-ci vient toujours du contributeur
+- Consentement explicite avant tout envoi : le contributeur accepte que sa
+  contribution (textes, audio, image) soit publiée librement et serve à
+  développer une IA koulango (enregistré avec la version du texte accepté)
 - Recherche sans résultat : proposition directe d'ajouter le mot manquant
   (via l'assistant, qui démarre avec le mot recherché, ou via le formulaire)
 - Prononciation audio : upload d'un fichier **ou** enregistrement direct au
@@ -119,6 +122,12 @@ cache hors-ligne).
   obligatoire) / fusionner avec un mot existant
 - Ajout et édition directe de mots (publication immédiate, sans file d'attente)
 - Upload d'image et enregistrement audio (micro navigateur) sur le formulaire
+- **Import d'une publication** (ex : groupe Facebook) : texte collé et/ou
+  jusqu'à 5 captures d'écran → l'IA (API Claude) extrait les mots koulango,
+  leurs traductions et exemples, les compare au dictionnaire (nouveau / existe
+  déjà / mot proche) ; le modérateur relit, corrige et publie en un clic
+- Indicateur de consentement de chaque contribution (accord IA ✓ / refusé /
+  non demandé pour les anciennes versions de l'app)
 
 **Côté API**
 - Recherche floue (trigram + Levenshtein) pour détecter les variantes proches

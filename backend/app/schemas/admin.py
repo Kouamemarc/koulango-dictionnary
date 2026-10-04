@@ -18,6 +18,7 @@ class PendingContribution(BaseModel):
     fr_translation: str | None
     en_translation: str | None
     created_at: datetime
+    ai_consent: bool | None = None
     model_config = {"from_attributes": True}
 
 

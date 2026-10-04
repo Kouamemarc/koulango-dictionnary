@@ -68,6 +68,8 @@ export interface WordCreate {
   source?: string;
   translations?: { language: TranslationLang; text: string; example?: string; example_translation?: string }[];
   force_create?: boolean;
+  /** Accord pour publier la contribution et l'utiliser pour développer une IA koulango. */
+  ai_consent?: boolean;
 }
 
 export interface ChatMessage {

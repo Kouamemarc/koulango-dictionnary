@@ -15,6 +15,9 @@ from app.schemas.word import SmartCheckResponse, Suggestion, WordCreate
 CONTRIBUTION_RATE_LIMIT = 10
 CONTRIBUTION_RATE_WINDOW = timedelta(hours=6)
 
+# Version du texte de consentement affiché aux contributeurs (à changer si le texte change).
+CONSENT_VERSION = "2026-10"
+
 
 class WordService:
     def __init__(self, words: WordRepository):
@@ -134,6 +137,8 @@ class WordService:
             payload=json.dumps(data.model_dump(), ensure_ascii=False),
             status=WordStatus.PENDING,
             ip_address=ip_address,
+            ai_consent=data.ai_consent,
+            consent_version=CONSENT_VERSION if data.ai_consent is not None else None,
         )
         self.words.db.add(contribution)
         self.words.save()

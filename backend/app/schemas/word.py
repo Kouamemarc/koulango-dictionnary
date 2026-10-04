@@ -73,6 +73,9 @@ class WordCreate(BaseModel):
     translations: list[TranslationIn] = []
     # Si l'utilisateur a confirmé qu'il s'agit d'un nouveau mot malgré les suggestions
     force_create: bool = False
+    # Accord pour publier la contribution (audio compris) et l'utiliser pour développer
+    # une IA koulango. Non bloquant côté API : les anciennes versions de l'app ne l'envoient pas.
+    ai_consent: bool | None = None
 
 
 class WordSummary(BaseModel):

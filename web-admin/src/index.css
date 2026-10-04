@@ -117,3 +117,27 @@ select { flex: 0 0 auto; }
 .subentity-block h3 { font-size: 14px; margin: 0 0 10px; }
 .subentity-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
 .subentity-row input { flex: 1; }
+
+/* ---------- Import d'une publication ---------- */
+
+.notice {
+  font-size: 13px; padding: 10px 12px; border-radius: 8px; margin: 0 0 14px;
+  background: color-mix(in srgb, var(--primary) 10%, var(--surface)); border: 1px solid var(--border);
+}
+.import-images { display: flex; gap: 10px; flex-wrap: wrap; }
+.import-thumb { display: flex; flex-direction: column; gap: 4px; width: 110px; }
+.import-thumb img { width: 110px; height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+.import-thumb button { padding: 4px 8px; font-size: 12px; }
+
+.import-title { font-size: 16px; margin: 24px 0 12px; }
+.import-list { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 12px; }
+.import-row { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.import-row-off { opacity: 0.55; }
+.import-row-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.import-check { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 15px; }
+.import-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
+.import-ok { color: var(--primary); font-weight: 700; margin: 8px 0 0; }
+
+.badge-new { background: color-mix(in srgb, var(--primary) 18%, var(--surface)); color: var(--primary); }
+.badge-exists { background: color-mix(in srgb, var(--danger) 15%, var(--surface)); color: var(--danger); }
+.badge-similar { background: #fef3c7; color: #92400e; }

@@ -22,6 +22,31 @@ export interface PendingContribution {
   fr_translation: string | null;
   en_translation: string | null;
   created_at: string;
+  /** true/false : réponse du contributeur ; null : ancienne version de l'app (question non posée). */
+  ai_consent: boolean | null;
+}
+
+export interface ImportImage {
+  media_type: "image/png" | "image/jpeg" | "image/webp" | "image/gif";
+  data: string;
+}
+
+export interface ImportEntry {
+  term: string;
+  fr_translation: string | null;
+  en_translation: string | null;
+  part_of_speech: string | null;
+  definition: string | null;
+  example: string | null;
+  example_translation: string | null;
+  pronunciation: string | null;
+  existing: "new" | "exists" | "similar" | "unknown";
+  matches: string[];
+}
+
+export interface ImportResponse {
+  entries: ImportEntry[];
+  notes: string | null;
 }
 
 export type WordStatus = "EN_ATTENTE_VALIDATION" | "PUBLIE" | "REFUSE" | "FUSIONNE";

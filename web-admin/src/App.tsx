@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import PendingPage from "./pages/PendingPage";
 import WordsPage from "./pages/WordsPage";
 import WordFormPage from "./pages/WordFormPage";
+import ImportPage from "./pages/ImportPage";
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -21,6 +22,7 @@ export default function App() {
       <Route path="/words" element={<RequireAuth><WordsPage /></RequireAuth>} />
       <Route path="/words/new" element={<RequireAuth><WordFormPage /></RequireAuth>} />
       <Route path="/words/:id/edit" element={<RequireAuth><WordFormPage /></RequireAuth>} />
+      <Route path="/import" element={<RequireAuth><ImportPage /></RequireAuth>} />
     </Routes>
   );
 }

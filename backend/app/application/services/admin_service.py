@@ -33,6 +33,7 @@ class AdminService:
                 fr_translation=w.fr_translation,
                 en_translation=w.en_translation,
                 created_at=c.created_at,
+                ai_consent=c.ai_consent,
             )
             for c, w in rows
         ]

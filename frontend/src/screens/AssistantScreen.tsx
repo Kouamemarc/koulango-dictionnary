@@ -9,6 +9,7 @@ import { Audio } from "expo-av";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/UI";
+import { ConsentCheckbox } from "@/components/ConsentCheckbox";
 import { AssistantApi, ContributionsApi, MediaApi } from "@/api/endpoints";
 import type { ChatMessage, Suggestion, WordCreate } from "@/types";
 import { font, radius, spacing, ThemeColors, useThemeColors } from "@/theme";
@@ -59,6 +60,7 @@ export default function AssistantScreen({ navigation, route }: any) {
   const [chatError, setChatError] = useState<string | null>(null);
   const [draft, setDraft] = useState<WordCreate | null>(null);
   const [sendState, setSendState] = useState<SendState>({ kind: "idle" });
+  const [consent, setConsent] = useState(false);
   const scrollRef = useRef<ScrollView | null>(null);
   const [pendingAudio, setPendingAudio] = useState<PendingAudio | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
@@ -191,6 +193,7 @@ export default function AssistantScreen({ navigation, route }: any) {
         audio_url,
         image_url: imageUrl ?? undefined,
         force_create: force || draft.force_create,
+        ai_consent: consent,
       });
       setSendState({ kind: "sent" });
     } catch (e: any) {
@@ -330,11 +333,12 @@ export default function AssistantScreen({ navigation, route }: any) {
               ) : (
                 <>
                   {sendState.kind === "error" && <Text style={styles.error}>{sendState.message}</Text>}
+                  <ConsentCheckbox checked={consent} onChange={setConsent} />
                   <Button
                     title="Envoyer la proposition"
                     onPress={() => submitDraft(false)}
                     loading={sendState.kind === "sending"}
-                    disabled={thinking || mediaBusy}
+                    disabled={thinking || mediaBusy || !consent}
                   />
                   <Text style={styles.hint}>Une erreur ? Écrivez à l'assistant ce qu'il faut corriger.</Text>
                 </>

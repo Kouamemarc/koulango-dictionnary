@@ -400,3 +400,11 @@ img.illustration {
 }
 .chat-input input { border-radius: 999px; }
 .chat-input button { width: 44px; height: 44px; padding: 0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+
+/* ---------- Consentement ---------- */
+
+.consent {
+  display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
+  font-size: 13px; line-height: 1.45; color: var(--muted); margin: 4px 0 14px;
+}
+.consent input { width: 18px; height: 18px; margin: 1px 0 0; flex-shrink: 0; accent-color: var(--primary); }

@@ -3,6 +3,7 @@ import type { ChangeEvent, FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AssistantApi, ContributionsApi, MediaApi } from "../api/endpoints";
 import { SendIcon } from "../components/Icons";
+import { ConsentCheckbox } from "../components/ConsentCheckbox";
 import type { ChatMessage, Suggestion, WordCreate } from "../api/types";
 
 const GREETING = "Bonjour ! Quel mot ou quelle expression koulango voulez-vous ajouter ?";
@@ -49,6 +50,7 @@ export default function AssistantPage() {
   const [chatError, setChatError] = useState<string | null>(null);
   const [draft, setDraft] = useState<WordCreate | null>(null);
   const [sendState, setSendState] = useState<SendState>({ kind: "idle" });
+  const [consent, setConsent] = useState(false);
   const [pendingAudio, setPendingAudio] = useState<PendingAudio | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -187,6 +189,7 @@ export default function AssistantPage() {
         audio_url,
         image_url: imageUrl ?? undefined,
         force_create: force || draft.force_create,
+        ai_consent: consent,
       });
       setSendState({ kind: "sent" });
     } catch (e: any) {
@@ -309,7 +312,8 @@ export default function AssistantPage() {
             ) : (
               <>
                 {sendState.kind === "error" && <p className="chat-error">{sendState.message}</p>}
-                <button className="draft-send" onClick={() => submitDraft(false)} disabled={sendState.kind === "sending" || thinking || mediaBusy}>
+                <ConsentCheckbox checked={consent} onChange={setConsent} />
+                <button className="draft-send" onClick={() => submitDraft(false)} disabled={sendState.kind === "sending" || thinking || mediaBusy || !consent}>
                   {sendState.kind === "sending" ? "Envoi…" : "Envoyer la proposition"}
                 </button>
                 <p className="hint">Une erreur ? Écrivez à l'assistant ce qu'il faut corriger.</p>

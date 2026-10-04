@@ -5,6 +5,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { Audio } from "expo-av";
 import { Ionicons } from "@expo/vector-icons";
 import { Button, Field } from "@/components/UI";
+import { ConsentCheckbox } from "@/components/ConsentCheckbox";
 import { ContributionsApi, MediaApi } from "@/api/endpoints";
 import type { Suggestion, TranslationLang, WordCreate } from "@/types";
 import { font, radius, spacing, ThemeColors, useThemeColors } from "@/theme";
@@ -27,6 +28,7 @@ export default function AddWordScreen({ navigation }: any) {
   const [form, setForm] = useState<WordCreate>({ term: "" });
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -154,7 +156,7 @@ export default function AddWordScreen({ navigation }: any) {
           example: t.example.trim() || undefined,
           example_translation: t.example_translation.trim() || undefined,
         }));
-      await ContributionsApi.propose({ ...form, audio_url, translations: validTranslations, force_create: force });
+      await ContributionsApi.propose({ ...form, audio_url, translations: validTranslations, force_create: force, ai_consent: consent });
       Alert.alert(
         "Merci !",
         "Mot ou expression proposé avec succès, ce sera vérifié et validé, merci pour votre contribution ❤️",
@@ -309,7 +311,8 @@ export default function AddWordScreen({ navigation }: any) {
       <Field label="Votre nom" placeholder="Ex : Marc BK" value={form.source} onChangeText={set("source")} />
       <Field label="Traduction anglaise" value={form.en_translation} onChangeText={set("en_translation")} />
 
-      <Button title="Proposer" onPress={handleCheck} loading={loading} disabled={busy} />
+      <ConsentCheckbox checked={consent} onChange={setConsent} />
+      <Button title="Proposer" onPress={handleCheck} loading={loading} disabled={busy || !consent} />
 
       {/* Modale de la recherche intelligente */}
       <Modal visible={showModal} transparent animationType="fade">

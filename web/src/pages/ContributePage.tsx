@@ -3,6 +3,7 @@ import type { ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ContributionsApi, MediaApi } from "../api/endpoints";
 import { ChatIcon, CloseCircleIcon } from "../components/Icons";
+import { ConsentCheckbox } from "../components/ConsentCheckbox";
 import type { Suggestion, TranslationLang, WordCreate } from "../api/types";
 
 type EntryType = "mot" | "expression";
@@ -30,6 +31,7 @@ export default function ContributePage() {
   const [translations, setTranslations] = useState<TranslationRow[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -148,7 +150,7 @@ export default function ContributePage() {
           example: t.example.trim() || undefined,
           example_translation: t.example_translation.trim() || undefined,
         }));
-      await ContributionsApi.propose({ ...form, audio_url, translations: validTranslations, force_create: force });
+      await ContributionsApi.propose({ ...form, audio_url, translations: validTranslations, force_create: force, ai_consent: consent });
       alert("Mot ou expression proposé avec succès, ce sera vérifié et validé, merci pour votre contribution ❤️");
       navigate("/");
     } catch (e: any) {
@@ -301,7 +303,9 @@ export default function ContributePage() {
         <input value={form.en_translation ?? ""} onChange={(e) => set("en_translation")(e.target.value)} />
       </div>
 
-      <button onClick={handleCheck} disabled={busy} style={{ width: "100%" }}>
+      <ConsentCheckbox checked={consent} onChange={setConsent} />
+
+      <button onClick={handleCheck} disabled={busy || !consent} style={{ width: "100%" }}>
         {loading ? "…" : "Proposer"}
       </button>
 

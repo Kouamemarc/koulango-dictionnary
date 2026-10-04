@@ -37,6 +37,12 @@ export default function PendingPage() {
             <div>
               <strong>{c.term}</strong>
               {c.fr_translation && <span className="muted"> — {c.fr_translation}</span>}
+              <span
+                className={`badge ${c.ai_consent ? "badge-new" : ""}`}
+                title="Accord du contributeur pour la publication et l'utilisation pour une IA koulango"
+              >
+                {c.ai_consent ? "Accord IA ✓" : c.ai_consent === false ? "Pas d'accord IA" : "Accord IA non demandé"}
+              </span>
             </div>
             {reasonFor === c.contribution_id ? (
               <div className="reason-row">
