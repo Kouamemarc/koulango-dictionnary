@@ -1,6 +1,33 @@
+<p align="center">
+  <img src="web/public/icon.png" width="140" alt="Logo Dictionnaire Koulango" />
+</p>
+
 # 📖 Koulango Dictionary
 
-Dictionnaire collaboratif de la langue **Koulango** (Côte d'Ivoire).
+Dictionnaire collaboratif de la langue **Koulango** (Côte d'Ivoire) —
+**gratuit**, pour valoriser la langue et la culture koulango.
+
+📄 Document de présentation du projet : [docs/Presentation-Dictionnaire-Koulango.docx](docs/Presentation-Dictionnaire-Koulango.docx)
+
+## 💡 Pourquoi ce projet ?
+
+- **Une langue attendue à l'école** : le ministère de l'Éducation nationale a
+  décidé d'intégrer l'enseignement des langues locales les plus parlées. Le
+  koulango est majoritairement parlé dans le Nord-Est, district du Zanzan
+  (régions du Bounkani et du Gontougo).
+- **Presque aucun outil numérique** : une recherche « koulango » sur le Play
+  Store ne renvoie que la Bible en koulango ; aucun dictionnaire n'existait.
+- **Une communauté déjà mobilisée** : dans des groupes Facebook, des
+  passionnés publient régulièrement des mots et expressions pour enseigner et
+  apprendre le koulango, mais ce savoir se perd dans le fil des publications.
+
+Le dictionnaire leur offre un lieu unique, gratuit et durable où chaque mot
+est conservé, relu par un modérateur et retrouvable en quelques secondes.
+
+**Et ensuite ?** Une fois une base solide de mots et d'expressions constituée
+par la communauté, nous mettrons en place une **IA koulango**.
+
+## 🧩 Composants
 
 - 📱 **App mobile** (Android) et 🌐 **site web public** : même expérience,
   recherche bidirectionnelle koulango ↔ français, fiches enrichies
@@ -23,7 +50,7 @@ Dictionnaire collaboratif de la langue **Koulango** (Côte d'Ivoire).
 |-----|-----|-------------|
 | API | https://koulango-dictionnary.onrender.com | Render (Web Service) + Neon Postgres |
 | Documentation API (Swagger) | https://koulango-dictionnary.onrender.com/docs | — |
-| Site public (web) | à déployer — voir [Démarrage rapide](#-démarrage-rapide) | Render (Static Site) |
+| Site public (web) | https://koulango-dictionnary-web.onrender.com | Render (Static Site) |
 | Admin web | https://koulango-dictionnary-1.onrender.com | Render (Static Site) |
 | App mobile | APK signé à sideloader (voir [Distribution mobile](#-distribution-mobile-android)) | — |
 
@@ -43,6 +70,14 @@ cache hors-ligne).
 </p>
 <p align="center">
   <sub>Accueil & recherche · Fiche détaillée d'un mot · Proposition d'un mot</sub>
+</p>
+
+<p align="center">
+  <img src="docs/screen-web-accueil.webp" width="400" alt="Site web : mot du jour, recherche et liste des mots" />
+  <img src="docs/screen-web-assistant.webp" width="400" alt="Assistant d'ajout conversationnel" />
+</p>
+<p align="center">
+  <sub>Site web : accueil · Assistant d'ajout (un visiteur cherche « bonsoir »)</sub>
 </p>
 
 ---
