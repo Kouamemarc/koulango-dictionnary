@@ -17,6 +17,7 @@ import AssistantScreen from "@/screens/AssistantScreen";
 import AboutScreen from "@/screens/AboutScreen";
 import ModeratorScreen from "@/screens/ModeratorScreen";
 import ContactScreen from "@/screens/ContactScreen";
+import ImportContributionScreen from "@/screens/ImportContributionScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -83,6 +84,11 @@ export default function RootNavigator() {
           name="Assistant"
           component={AssistantScreen}
           options={{ title: "Assistant d'ajout", headerRight: () => <ThemeToggleButton /> }}
+        />
+        <Stack.Screen
+          name="ImportContribution"
+          component={ImportContributionScreen}
+          options={{ title: "Importer une publication", headerRight: () => <ThemeToggleButton /> }}
         />
         <Stack.Screen
           name="About"

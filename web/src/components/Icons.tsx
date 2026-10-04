@@ -69,3 +69,6 @@ export const ShieldIcon = (p: IconProps) => (
 export const MailIcon = (p: IconProps) => (
   <svg {...base(p)}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg>
 );
+export const ImportIcon = (p: IconProps) => (
+  <svg {...base(p)}><path d="M12 3v12M7 10l5 5 5-5" /><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" /></svg>
+);

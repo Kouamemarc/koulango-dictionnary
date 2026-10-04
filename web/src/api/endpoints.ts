@@ -1,6 +1,7 @@
 import { api } from "./client";
 import type {
-  ChatMessage, ChatResponse, Lang, MessageCreate, SmartCheckResponse, WordCreate, WordDetail, WordSummary,
+  BatchItemResult, ChatMessage, ChatResponse, ImportImage, ImportResponse, Lang, MessageCreate, SmartCheckResponse,
+  WordCreate, WordDetail, WordSummary,
 } from "./types";
 
 export const WordsApi = {
@@ -14,6 +15,11 @@ export const ContributionsApi = {
   check: (term: string) =>
     api.get<SmartCheckResponse>("/contributions/check", { params: { term } }).then((r) => r.data),
   propose: (body: WordCreate) => api.post<WordSummary>("/contributions", body).then((r) => r.data),
+  // Analyse par l'IA (texte + captures) : nettement plus long qu'un appel classique.
+  importExtract: (body: { text: string; images: ImportImage[] }) =>
+    api.post<ImportResponse>("/contributions/import/extract", body, { timeout: 180000 }).then((r) => r.data),
+  proposeBatch: (entries: WordCreate[]) =>
+    api.post<BatchItemResult[]>("/contributions/batch", { entries }).then((r) => r.data),
 };
 
 export const AssistantApi = {

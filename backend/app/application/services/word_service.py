@@ -9,11 +9,13 @@ from app.core.config import settings
 from app.domain.enums import ContributionType, UserRole, WordStatus
 from app.infrastructure.models import Contribution, Definition, Example, Pronunciation, Audio, Translation, User
 from app.infrastructure.repositories.word_repository import WordRepository, normalize
-from app.schemas.word import SmartCheckResponse, Suggestion, WordCreate
+from app.schemas.word import BatchItemResult, SmartCheckResponse, Suggestion, WordCreate
 
 # Anti-spam : une même IP ne peut proposer plus de N mots/expressions par fenêtre glissante.
 CONTRIBUTION_RATE_LIMIT = 10
 CONTRIBUTION_RATE_WINDOW = timedelta(hours=6)
+# Import d'une publication : plusieurs mots d'un coup, d'où un plafond plus large (toujours modérés).
+IMPORT_RATE_LIMIT = 60
 
 # Version du texte de consentement affiché aux contributeurs (à changer si le texte change).
 CONSENT_VERSION = "2026-10"
@@ -23,7 +25,7 @@ class WordService:
     def __init__(self, words: WordRepository):
         self.words = words
 
-    def _check_rate_limit(self, ip_address: str | None) -> None:
+    def _check_rate_limit(self, ip_address: str | None, adding: int = 1, limit: int = CONTRIBUTION_RATE_LIMIT) -> None:
         if not ip_address:
             return
         since = datetime.now(timezone.utc) - CONTRIBUTION_RATE_WINDOW
@@ -31,8 +33,8 @@ class WordService:
             select(func.count(Contribution.id)).where(
                 Contribution.ip_address == ip_address, Contribution.created_at >= since
             )
-        )
-        if count and count >= CONTRIBUTION_RATE_LIMIT:
+        ) or 0
+        if count + adding > limit:
             raise HTTPException(
                 status.HTTP_429_TOO_MANY_REQUESTS,
                 "Trop de propositions depuis cette adresse ces dernières heures. Réessayez plus tard.",
@@ -72,14 +74,38 @@ class WordService:
             msg = "Le mot n'existe pas. Vous pouvez le proposer."
         return SmartCheckResponse(exists=False, message=msg, suggestions=suggestions)
 
-    def propose_word(self, data: WordCreate, author: User | None, ip_address: str | None = None) -> Contribution:
+    def propose_batch(self, entries: list[WordCreate], author: User | None, ip_address: str | None) -> list[BatchItemResult]:
+        """Propose plusieurs mots extraits d'une publication, chacun en attente de modération.
+
+        Les mots déjà présents sont ignorés (signalés) ; les variantes proches ont
+        déjà été montrées à l'utilisateur, qui a choisi de les garder.
+        """
+        is_staff = author is not None and author.role in (UserRole.ADMIN, UserRole.MODERATOR)
+        if not is_staff:
+            self._check_rate_limit(ip_address, adding=len(entries), limit=IMPORT_RATE_LIMIT)
+
+        results = []
+        for entry in entries:
+            try:
+                contribution = self.propose_word(
+                    entry.model_copy(update={"force_create": True}), author, ip_address, check_rate=False
+                )
+                results.append(BatchItemResult(term=entry.term, status="created", word_id=contribution.word_id))
+            except HTTPException as e:
+                detail = e.detail if isinstance(e.detail, str) else "Proposition impossible."
+                results.append(BatchItemResult(term=entry.term, status="skipped", detail=detail))
+        return results
+
+    def propose_word(
+        self, data: WordCreate, author: User | None, ip_address: str | None = None, check_rate: bool = True
+    ) -> Contribution:
         """Crée un mot au statut EN_ATTENTE_VALIDATION + une contribution associée.
 
         Si des variantes proches existent et que force_create est False, on
         renvoie 409 avec les suggestions (l'utilisateur doit confirmer).
         """
         is_staff = author is not None and author.role in (UserRole.ADMIN, UserRole.MODERATOR)
-        if not is_staff:
+        if not is_staff and check_rate:
             self._check_rate_limit(ip_address)
 
         norm = normalize(data.term)

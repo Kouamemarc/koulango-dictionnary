@@ -94,3 +94,34 @@ export interface MessageCreate {
   koulango_level?: string;
   body: string;
 }
+
+export interface ImportImage {
+  media_type: "image/png" | "image/jpeg" | "image/webp" | "image/gif";
+  /** Base64, sans le préfixe data:. */
+  data: string;
+}
+
+export interface ImportEntry {
+  term: string;
+  fr_translation: string | null;
+  en_translation: string | null;
+  part_of_speech: string | null;
+  definition: string | null;
+  example: string | null;
+  example_translation: string | null;
+  pronunciation: string | null;
+  existing: "new" | "exists" | "similar" | "unknown";
+  matches: string[];
+}
+
+export interface ImportResponse {
+  entries: ImportEntry[];
+  notes: string | null;
+}
+
+export interface BatchItemResult {
+  term: string;
+  status: "created" | "skipped";
+  word_id: number | null;
+  detail: string | null;
+}

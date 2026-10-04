@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ContributionsApi, MediaApi } from "../api/endpoints";
-import { ChatIcon, CloseCircleIcon } from "../components/Icons";
+import { ChatIcon, CloseCircleIcon, ImportIcon } from "../components/Icons";
 import { ConsentCheckbox } from "../components/ConsentCheckbox";
 import type { Suggestion, TranslationLang, WordCreate } from "../api/types";
 
@@ -169,6 +169,13 @@ export default function ContributePage() {
         <span>
           <strong>Besoin d'aide ?</strong>
           <span>Répondez à quelques questions, l'assistant remplit la fiche pour vous.</span>
+        </span>
+      </Link>
+      <Link to="/contribuer/importer" className="assistant-banner">
+        <ImportIcon size={22} />
+        <span>
+          <strong>Plusieurs mots d'un coup ?</strong>
+          <span>Importez une publication (Facebook…) : texte copié ou captures d'écran.</span>
         </span>
       </Link>
 

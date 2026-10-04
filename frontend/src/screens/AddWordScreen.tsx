@@ -179,6 +179,14 @@ export default function AddWordScreen({ navigation }: any) {
         </View>
         <Ionicons name="chevron-forward" size={18} color={colors.primary} />
       </TouchableOpacity>
+      <TouchableOpacity style={styles.assistantBanner} onPress={() => navigation.navigate("ImportContribution")}>
+        <Ionicons name="download-outline" size={22} color={colors.primary} />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.assistantTitle}>Plusieurs mots d'un coup ?</Text>
+          <Text style={styles.assistantText}>Importez une publication (Facebook…) : texte copié ou captures d'écran.</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+      </TouchableOpacity>
       <View style={styles.typeRow}>
         <TouchableOpacity
           style={[styles.typeBtn, entryType === "mot" && styles.typeBtnActive]}

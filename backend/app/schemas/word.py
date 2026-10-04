@@ -1,4 +1,6 @@
 """Schémas liés aux mots, définitions, exemples, etc."""
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 from app.domain.enums import WordStatus
@@ -76,6 +78,18 @@ class WordCreate(BaseModel):
     # Accord pour publier la contribution (audio compris) et l'utiliser pour développer
     # une IA koulango. Non bloquant côté API : les anciennes versions de l'app ne l'envoient pas.
     ai_consent: bool | None = None
+
+
+class ContributionBatch(BaseModel):
+    """Plusieurs mots extraits d'une publication, proposés en une fois (chacun modéré)."""
+    entries: list[WordCreate] = Field(min_length=1, max_length=30)
+
+
+class BatchItemResult(BaseModel):
+    term: str
+    status: Literal["created", "skipped"]
+    word_id: int | None = None
+    detail: str | None = None
 
 
 class WordSummary(BaseModel):

@@ -21,6 +21,8 @@ Base : `http://localhost:8000/api/v1` · Documentation interactive : `/docs` (Sw
 |---------|----------|------|-------------|
 | GET | `/contributions/check?term=` | connecté | Vérification intelligente |
 | POST | `/contributions` | connecté | Proposer un mot (EN_ATTENTE_VALIDATION) |
+| POST | `/contributions/import/extract` | public | Extraire les mots d'une publication (texte + captures) via l'IA, sans rien enregistrer (10 / IP / heure) |
+| POST | `/contributions/batch` | public | Proposer jusqu'à 30 mots d'un coup, chacun en modération ; mots déjà présents ignorés |
 | POST | `/admin/import/extract` | Modérateur | Extraire les mots d'une publication (texte + captures) via l'IA, sans rien enregistrer |
 | POST | `/messages` | public | Contacter le développeur ou candidater comme modérateur (5 / IP / heure) |
 | GET | `/admin/messages` | Modérateur | Messages des visiteurs (non lus en tête) |

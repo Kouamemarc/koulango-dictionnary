@@ -9,6 +9,7 @@ import AssistantPage from "./pages/AssistantPage";
 import AboutPage from "./pages/AboutPage";
 import ModeratorPage from "./pages/ModeratorPage";
 import ContactPage from "./pages/ContactPage";
+import ImportContributionPage from "./pages/ImportContributionPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import HistoryPage from "./pages/HistoryPage";
 
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/mots/:id" element={<WordDetailPage />} />
         <Route path="/contribuer" element={<ContributePage />} />
+        <Route path="/contribuer/importer" element={<ImportContributionPage />} />
         <Route path="/assistant" element={<AssistantPage />} />
         <Route path="/a-propos" element={<AboutPage />} />
         <Route path="/devenir-moderateur" element={<ModeratorPage />} />

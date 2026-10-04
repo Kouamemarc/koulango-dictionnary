@@ -101,6 +101,10 @@ cache hors-ligne).
 - Consentement explicite avant tout envoi : le contributeur accepte que sa
   contribution (textes, audio, image) soit publiée librement et serve à
   développer une IA koulango (enregistré avec la version du texte accepté)
+- Importer une publication (ex : groupe Facebook) : texte collé et/ou jusqu'à
+  5 captures d'écran → l'IA repère les mots koulango et leurs traductions,
+  le contributeur vérifie, corrige et envoie sa sélection en une fois ; chaque
+  mot part en modération (10 analyses / IP / heure, 60 propositions / IP / 6h)
 - Recherche sans résultat : proposition directe d'ajouter le mot manquant
   (via l'assistant, qui démarre avec le mot recherché, ou via le formulaire)
 - Prononciation audio : upload d'un fichier **ou** enregistrement direct au

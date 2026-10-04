@@ -114,14 +114,19 @@ TOOLS = [
 ]
 
 
-class _RateLimiter:
+class RateLimiter:
     """Fenêtre glissante d'une heure par IP, en mémoire (une seule instance sur Render)."""
 
     def __init__(self) -> None:
         self._hits: dict[str, deque[float]] = defaultdict(deque)
         self._lock = threading.Lock()
 
-    def check(self, key: str | None, limit: int) -> None:
+    def check(
+        self,
+        key: str | None,
+        limit: int,
+        message: str = "Beaucoup de messages envoyés à l'assistant cette dernière heure. Réessayez un peu plus tard.",
+    ) -> None:
         if not key:
             return
         now = time.monotonic()
@@ -130,14 +135,11 @@ class _RateLimiter:
             while hits and now - hits[0] > 3600:
                 hits.popleft()
             if len(hits) >= limit:
-                raise HTTPException(
-                    status.HTTP_429_TOO_MANY_REQUESTS,
-                    "Beaucoup de messages envoyés à l'assistant cette dernière heure. Réessayez un peu plus tard.",
-                )
+                raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, message)
             hits.append(now)
 
 
-rate_limiter = _RateLimiter()
+rate_limiter = RateLimiter()
 
 _client: anthropic.Anthropic | None = None
 
