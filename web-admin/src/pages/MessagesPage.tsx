@@ -14,7 +14,7 @@ export default function MessagesPage() {
   });
 
   return (
-    <AdminLayout title="Messages des visiteurs">
+    <AdminLayout title="Messages des visiteurs" subtitle="Contacts et candidatures pour devenir modérateur">
       {isLoading && <p>Chargement…</p>}
       {error && <p className="error">Impossible de charger les messages.</p>}
       {!isLoading && !error && data?.length === 0 && <p className="muted">Aucun message pour l'instant.</p>}

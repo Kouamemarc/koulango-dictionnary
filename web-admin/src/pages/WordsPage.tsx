@@ -27,7 +27,11 @@ export default function WordsPage() {
   });
 
   return (
-    <AdminLayout title="Mots">
+    <AdminLayout
+      title="Mots"
+      subtitle={data ? `${data.length} mot(s)${isSearching ? " trouvé(s)" : ""}` : undefined}
+      actions={<Link to="/words/new"><button>+ Ajouter un mot</button></Link>}
+    >
       <div className="field">
         <input placeholder="Rechercher un mot…" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>

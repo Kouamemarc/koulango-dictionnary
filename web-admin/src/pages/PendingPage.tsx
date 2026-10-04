@@ -26,7 +26,7 @@ export default function PendingPage() {
   const isForbidden = (error as { response?: { status?: number } } | null)?.response?.status === 403;
 
   return (
-    <AdminLayout title="Contributions en attente">
+    <AdminLayout title="Contributions en attente" subtitle="Propositions des contributeurs à valider avant publication">
       {isLoading && <p>Chargement…</p>}
       {isForbidden && <p className="error">Ton compte n'a pas les privilèges de modération.</p>}
       {!isLoading && !error && data?.length === 0 && <p className="muted">Rien à valider. 🎉</p>}

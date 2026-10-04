@@ -194,7 +194,10 @@ export default function WordFormPage() {
   if (isEdit && isLoading) return <AdminLayout title="Modifier un mot"><p>Chargement…</p></AdminLayout>;
 
   return (
-    <AdminLayout title={isEdit ? `Modifier « ${form.term} »` : "Ajouter un mot"}>
+    <AdminLayout
+      title={isEdit ? `Modifier « ${form.term} »` : "Ajouter un mot"}
+      subtitle={isEdit ? undefined : "Publié immédiatement, sans passer par la file d'attente"}
+    >
       <form onSubmit={onSubmit}>
         <div className="field">
           <label>Terme *</label>

@@ -142,7 +142,7 @@ export default function ImportPage() {
   );
 
   return (
-    <AdminLayout title="Importer une publication">
+    <AdminLayout title="Importer une publication" subtitle="Récupérer les mots partagés dans une publication (texte ou captures d'écran)">
       <p className="muted">
         Collez le texte d'une publication (par exemple d'un groupe Facebook) et/ou ajoutez des captures d'écran :
         l'IA repère les mots koulango et leurs traductions. Vous relisez, corrigez, puis publiez.
