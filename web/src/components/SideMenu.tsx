@@ -33,11 +33,14 @@ export function SideMenu({ open, onClose }: { open: boolean; onClose: () => void
     <div className="side-backdrop" onClick={onClose}>
       <aside className="side-menu" role="dialog" aria-modal="true" aria-label="Menu" onClick={(e) => e.stopPropagation()}>
         <div className="side-head">
-          <img src="/icon.png" alt="" />
-          <span className="brand-text">
-            <span className="l1">DICTIONNAIRE</span>
-            <span className="l2">KOULANGO</span>
-          </span>
+          {/* onClick : ferme aussi le menu quand on est déjà sur l'accueil (pas de changement de page). */}
+          <NavLink to="/" className="side-brand" onClick={onClose} aria-label="Retour à l'accueil">
+            <img src="/icon.png" alt="" />
+            <span className="brand-text">
+              <span className="l1">DICTIONNAIRE</span>
+              <span className="l2">KOULANGO</span>
+            </span>
+          </NavLink>
           <button className="icon-btn side-close" onClick={onClose} aria-label="Fermer le menu">
             <CloseIcon />
           </button>

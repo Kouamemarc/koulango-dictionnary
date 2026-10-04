@@ -51,11 +51,17 @@ export function MenuButton() {
           ]}
         >
           <View style={styles.head}>
-            <Image source={require("../../assets/icon.png")} style={styles.logo} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.line1}>DICTIONNAIRE</Text>
-              <Text style={styles.line2}>KOULANGO</Text>
-            </View>
+            <TouchableOpacity
+              style={styles.brand}
+              onPress={() => close(() => navigation.navigate("Tabs", { screen: "Accueil" }))}
+              accessibilityLabel="Retour à l'accueil"
+            >
+              <Image source={require("../../assets/icon.png")} style={styles.logo} />
+              <View>
+                <Text style={styles.line1}>DICTIONNAIRE</Text>
+                <Text style={styles.line2}>KOULANGO</Text>
+              </View>
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => close()} hitSlop={10} accessibilityLabel="Fermer le menu">
               <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
@@ -89,6 +95,7 @@ const makeStyles = (colors: ThemeColors) => StyleSheet.create({
     flexDirection: "row", alignItems: "center", gap: 10,
     paddingBottom: spacing.md, marginBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border,
   },
+  brand: { flex: 1, flexDirection: "row", alignItems: "center", gap: 10 },
   logo: { width: 42, height: 42, borderRadius: 10 },
   line1: { fontSize: 12, fontWeight: "800", color: colors.primaryDark, letterSpacing: 0.5 },
   line2: { fontSize: 17, fontWeight: "800", color: colors.accent, letterSpacing: 0.5, marginTop: -2 },
