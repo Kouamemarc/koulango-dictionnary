@@ -493,3 +493,12 @@ img.illustration {
 .import-badge.new { background: var(--glow-1); color: var(--primary); }
 .import-badge.exists { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
 .import-badge.similar { background: var(--glow-2); color: var(--accent); }
+
+/* ---------- Hors ligne ---------- */
+
+.offline-banner {
+  font-size: 13.5px; line-height: 1.5; padding: 10px 14px; margin-bottom: 14px;
+  border-radius: 14px; border: 1px solid var(--accent); background: var(--glow-2); color: var(--text);
+}
+.offline-banner strong { color: var(--accent); }
+.offline-hint { margin: -4px 0 10px; }

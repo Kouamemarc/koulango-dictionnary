@@ -123,8 +123,10 @@ cache hors-ligne).
   messages arrivent dans l'onglet « Messages » de l'admin, sans exposer
   d'adresse e-mail
 - Mode sombre (suit le système, ou basculé manuellement)
-- Fonctionne hors-ligne pour les mots déjà consultés (cache persistant, mobile
-  uniquement)
+- Fonctionne hors-ligne pour les mots déjà consultés, sur l'app mobile comme sur
+  le site web : liste des mots et fiches gardées sur l'appareil (cache React
+  Query persisté), illustrations mises en cache par le service worker,
+  recherche dans les mots enregistrés et bandeau « Vous êtes hors ligne »
 
 **Côté modération (web-admin)**
 - File d'attente des contributions en attente → accepter / refuser (motif

@@ -5,12 +5,14 @@ import { useIsDark } from "../useIsDark";
 import { useThemePreference } from "../store/themePreference";
 import { HomeIcon, PlusIcon, HeartIcon, ClockIcon, SunIcon, MoonIcon, MenuIcon } from "./Icons";
 import { SideMenu } from "./SideMenu";
+import { useOnlineStatus } from "../useOnlineStatus";
 import { InstallBanner } from "./InstallBanner";
 
 export function Layout({ children }: { children: ReactNode }) {
   const isDark = useIsDark();
   const toggle = useThemePreference((s) => s.toggle);
   const [menuOpen, setMenuOpen] = useState(false);
+  const online = useOnlineStatus();
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   return (
@@ -55,6 +57,12 @@ export function Layout({ children }: { children: ReactNode }) {
         </header>
 
         <main className="page">
+          {!online && (
+            <div className="offline-banner" role="status">
+              <strong>Vous êtes hors ligne.</strong> Les mots déjà consultés restent disponibles ; proposer un mot
+              nécessite une connexion.
+            </div>
+          )}
           <InstallBanner />
           {children}
         </main>

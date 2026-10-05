@@ -42,6 +42,18 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
+        // Illustrations des mots (servies par l'API) : gardées pour être vues hors ligne.
+        runtimeCaching: [
+          {
+            urlPattern: ({ request, sameOrigin }) => request.destination === 'image' && !sameOrigin,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'koulango-images',
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
     }),
   ],

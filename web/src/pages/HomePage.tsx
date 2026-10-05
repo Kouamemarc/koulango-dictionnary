@@ -4,7 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { WordsApi } from "../api/endpoints";
 import { WordListItem } from "../components/WordListItem";
 import { SearchIcon, MicIcon, SwapIcon, ChevronIcon, ChatIcon } from "../components/Icons";
-import type { Lang } from "../api/types";
+import type { Lang, WordSummary } from "../api/types";
+import { useOnlineStatus } from "../useOnlineStatus";
+
+/** Minuscules sans accents, pour comparer « dígô » et « digo ». */
+const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 
 export default function HomePage() {
   const [q, setQ] = useState("");
@@ -12,7 +16,9 @@ export default function HomePage() {
   const isSearching = q.length >= 1;
 
   // Sans saisie : liste alphabétique complète des mots publiés (accueil).
-  const list = useQuery({ queryKey: ["words", "list"], queryFn: WordsApi.list, enabled: !isSearching });
+  const online = useOnlineStatus();
+  // Toujours chargée (et gardée sur l'appareil) : sert aussi à chercher hors ligne.
+  const list = useQuery({ queryKey: ["words", "list"], queryFn: WordsApi.list });
   // Dès la première lettre : recherche instantanée bidirectionnelle (koulango <-> français).
   const search = useQuery({
     queryKey: ["words", "search", q, lang],
@@ -20,7 +26,17 @@ export default function HomePage() {
     enabled: isSearching,
   });
 
-  const { data, isLoading } = isSearching ? search : list;
+  // Hors ligne (ou API injoignable) : recherche dans les mots enregistrés sur l'appareil.
+  const offlineSearch = isSearching && (!online || search.isError) && !!list.data;
+  const localResults = useMemo<WordSummary[]>(() => {
+    if (!offlineSearch) return [];
+    const needle = fold(q);
+    return list.data!.filter((w) => fold(w.term).includes(needle) || fold(w.fr_translation ?? "").includes(needle));
+  }, [offlineSearch, q, list.data]);
+
+  const { data, isLoading } = offlineSearch
+    ? { data: localResults, isLoading: false }
+    : isSearching ? search : list;
 
   // Un mot par jour, identique pour tout le monde (index déterministe basé sur
   // la date, pas un tirage aléatoire par visiteur). Reste affiché depuis le
@@ -69,7 +85,13 @@ export default function HomePage() {
 
       {isLoading && <p className="empty-state">Chargement…</p>}
       {!isLoading && (data ?? []).length === 0 && (
-        isSearching ? (
+        offlineSearch ? (
+          <p className="empty-state">
+            Aucun résultat pour « {q.trim()} » parmi les mots enregistrés sur cet appareil.
+            <br />
+            Reconnectez-vous pour chercher dans tout le dictionnaire.
+          </p>
+        ) : isSearching ? (
           // Mot introuvable : on propose directement de l'ajouter, guidé par l'assistant.
           <div className="missing-word">
             <p>
@@ -89,6 +111,9 @@ export default function HomePage() {
         ) : (
           <p className="empty-state">Aucun mot publié pour l'instant.</p>
         )
+      )}
+      {offlineSearch && localResults.length > 0 && (
+        <p className="hint offline-hint">Recherche hors ligne parmi les mots enregistrés sur cet appareil.</p>
       )}
       <ul className="word-list">
         {(data ?? []).map((item) => (
