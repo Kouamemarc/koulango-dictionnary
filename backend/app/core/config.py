@@ -46,6 +46,8 @@ class Settings(BaseSettings):
     # Vide = assistant désactivé (l'endpoint répond 503, le reste de l'API fonctionne).
     ANTHROPIC_API_KEY: str = ""
     ASSISTANT_MODEL: str = "claude-opus-5-5"
+    # Import de publications (lecture de captures d'écran) : modèle séparé, plus exigeant.
+    IMPORT_MODEL: str = "claude-opus-5-5"
     # Anti-abus : nombre de messages envoyés à l'assistant par IP et par heure.
     ASSISTANT_RATE_LIMIT_PER_HOUR: int = 60
 

@@ -34,14 +34,15 @@ Informations à recueillir :
 - le mot ou l'expression en koulango (obligatoire) ;
 - sa traduction en français (indispensable) ;
 - sa nature : nom, verbe, adjectif, pronom, adverbe ou interjection (aucune pour une expression) ;
-- recommandé : la prononciation, écrite comme elle se dit (par exemple avec les tons ou en découpant les syllabes) ; demande-la systématiquement, en expliquant qu'elle aide beaucoup ceux qui ne connaissent pas le mot, mais que l'utilisateur peut passer ;
+- recommandé : la prononciation, écrite comme elle se dit (par exemple avec les tons ou en découpant les syllabes) ; demande-la toujours, en précisant qu'elle est facultative ;
 - facultatif : une définition ou une précision de sens, une phrase d'exemple en koulango avec sa traduction française, d'autres sens possibles, et le nom du contributeur.
 
 Un enregistrement audio de la prononciation et une image d'illustration sont aussi recommandés, mais tu ne peux pas les recevoir dans la discussion : l'utilisateur les ajoute avec les boutons « Enregistrer » et « Choisir une image » du récapitulatif.
 
 Façon de mener la conversation :
-- Écris en français simple et chaleureux, en phrases courtes, sans markdown (pas d'astérisques, de titres ni de listes à puces) : tes messages s'affichent en texte brut dans une bulle de discussion.
-- Pose une ou deux questions à la fois. Pour les informations facultatives, précise que l'utilisateur peut passer. Ne redemande pas une information déjà donnée.
+- Sois bref : une ou deux phrases courtes par message (25 mots environ) et une seule question à la fois. Ne remercie pas à chaque message, ne répète pas ce que l'utilisateur vient de dire et n'explique pas tes choix sauf si on te le demande.
+- Écris en français simple et chaleureux, sans markdown (pas d'astérisques, de titres ni de listes à puces) : tes messages s'affichent en texte brut dans une bulle de discussion.
+- Pour une information facultative, ajoute simplement « (facultatif) ». Ne redemande pas une information déjà donnée.
 - Si la nature du mot se déduit clairement de la traduction, propose-la plutôt que de la demander.
 - L'historique de la conversation ne contient que le texte des messages, pas tes appels d'outils des tours précédents. Ce que tu as annoncé dans tes messages précédents a bien été fait : ne remets jamais en cause une vérification passée et ne t'en excuse pas. Si tu veux revérifier un mot avant prepare_word, fais-le sans le mentionner, sauf si le résultat a changé.
 - Dès que tu connais le mot koulango, appelle check_word. S'il existe déjà, dis-le et n'en prépare pas de proposition. Si check_word renvoie des mots proches qui ressemblent vraiment au mot (même mot écrit autrement : accent, lettre doublée, ɔ/o…), cite-les et demande si c'est le même mot ; si l'utilisateur confirme que c'est un mot différent, mets confirmed_new_word à true dans prepare_word. Si la ressemblance n'est pas évidente, n'en parle pas et mets confirmed_new_word à true.
@@ -50,7 +51,7 @@ Ce que tu peux et ne peux pas faire avec les langues :
 - Tu traduis toi-même la traduction française en anglais pour remplir en_translation ; ne la demande pas à l'utilisateur. Tu peux aussi corriger l'orthographe des textes en français.
 - Tu ne connais pas le koulango de façon fiable. N'invente, ne corrige et ne traduis jamais rien vers le koulango : le mot, l'exemple et la prononciation koulango viennent uniquement de l'utilisateur, recopiés tels quels. Si on te demande une traduction vers le koulango, explique que c'est justement la communauté qui enrichit le dictionnaire.
 
-Quand tu as au moins le mot koulango et sa traduction française, et que l'utilisateur n'a plus rien à ajouter sur les points facultatifs, appelle prepare_word. L'interface affiche alors un récapitulatif avec un bouton « Envoyer la proposition ». Dans ton message, demande à l'utilisateur d'y ajouter si possible un enregistrement de la prononciation et une image d'illustration (recommandés, pas obligatoires), puis de vérifier et d'envoyer, ou de te dire quoi corriger. Si l'utilisateur demande une correction, rappelle prepare_word avec la proposition complète corrigée. Une proposition envoyée est relue par un modérateur avant publication.
+Quand tu as au moins le mot koulango et sa traduction française, et que l'utilisateur n'a plus rien à ajouter sur les points facultatifs, appelle prepare_word, sans écrire de message : l'interface affiche elle-même le récapitulatif, le bouton « Envoyer la proposition » et l'invitation à ajouter un enregistrement et une image. Si l'utilisateur demande une correction, rappelle prepare_word avec la proposition complète corrigée. Une proposition envoyée est relue par un modérateur avant publication.
 
 Reste centré sur l'ajout de mots au dictionnaire ; pour une autre demande, réponds poliment que ce n'est pas ton rôle ici."""
 
@@ -171,6 +172,29 @@ def _draft_from_tool_input(data: dict) -> WordCreate:
     )
 
 
+# Message affiché après prepare_word : fixe, ce qui évite un second appel au modèle (~3 s).
+RECAP_REPLY = (
+    "Voici le récapitulatif. Si possible, ajoutez un enregistrement de la prononciation et une image "
+    "(facultatif), puis envoyez-le. Une erreur ? Dites-moi quoi corriger."
+)
+
+
+# Modèles qui acceptent le repli automatique côté serveur (fallbacks: "default").
+_FALLBACK_MODELS = {"claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5", "claude-fable-5-1"}
+
+
+def model_options(model: str) -> dict:
+    """Paramètres propres au modèle choisi (ASSISTANT_MODEL), pour pouvoir en changer sans erreur 400."""
+    if model.startswith("claude-haiku"):
+        return {}  # pas de niveau d'effort ni de repli sur Haiku
+    # Conversation simple : effort bas = réponses rapides et peu coûteuses.
+    options: dict = {"output_config": {"effort": "low"}}
+    if model in _FALLBACK_MODELS:
+        # Si le modèle décline par erreur, l'API rejoue la requête sur un modèle de repli.
+        options |= {"betas": ["server-side-fallback-2026-07-01"], "fallbacks": "default"}
+    return options
+
+
 class AssistantService:
     def __init__(self, client: anthropic.Anthropic, words: WordService):
         self.client = client
@@ -208,11 +232,7 @@ class AssistantService:
                     system=[{"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
                     tools=TOOLS,
                     messages=messages,
-                    # Conversation simple : effort bas = réponses rapides et peu coûteuses.
-                    output_config={"effort": "low"},
-                    # Si le modèle décline par erreur, l'API rejoue la requête sur un modèle de repli.
-                    betas=["server-side-fallback-2026-07-01"],
-                    fallbacks="default",
+                    **model_options(settings.ASSISTANT_MODEL),
                 )
             except anthropic.RateLimitError:
                 raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "L'assistant est très sollicité. Réessayez dans un instant.")
@@ -232,11 +252,17 @@ class AssistantService:
 
             messages.append({"role": "assistant", "content": response.content})
             results = []
+            drafted_now = False
             for block in tool_uses:
                 content, is_error, new_draft = self._run_tool(block.name, block.input)
                 if new_draft is not None:
                     draft = new_draft
+                    drafted_now = True
                 results.append({"type": "tool_result", "tool_use_id": block.id, "content": content, "is_error": is_error})
+
+            # Le récapitulatif est prêt : la réponse est fixe, inutile de rappeler le modèle.
+            if drafted_now and not any(r["is_error"] for r in results):
+                return ChatResponse(reply=RECAP_REPLY, draft=draft)
             messages.append({"role": "user", "content": results})
 
         reply = "\n\n".join(b.text for b in response.content if b.type == "text").strip()

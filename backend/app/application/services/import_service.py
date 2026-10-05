@@ -97,7 +97,7 @@ class ImportService:
 
         try:
             response = self.client.with_options(timeout=150.0).beta.messages.create(
-                model=settings.ASSISTANT_MODEL,
+                model=settings.IMPORT_MODEL,
                 max_tokens=16000,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": content}],

@@ -5,7 +5,7 @@ import pytest
 
 from app.api.routers.assistant import get_assistant_service
 from app.application.services import assistant_service
-from app.application.services.assistant_service import AssistantService
+from app.application.services.assistant_service import RECAP_REPLY, AssistantService
 from app.application.services.word_service import WordService
 from app.infrastructure.repositories.word_repository import WordRepository
 from app.main import app
@@ -61,7 +61,6 @@ def test_prepare_word_returns_draft(client, use_fake):
             "part_of_speech": "nom", "other_translations": [{"language": "fr", "text": "case"}],
             "confirmed_new_word": True,
         })]),
-        SimpleNamespace(stop_reason="end_turn", content=[_text("Vérifiez puis envoyez.")]),
     ])
     r = client.post("/api/v1/assistant/chat", json={"messages": [
         {"role": "user", "content": "kpɔ"},
@@ -70,15 +69,14 @@ def test_prepare_word_returns_draft(client, use_fake):
     ]})
     assert r.status_code == 200, r.text
     body = r.json()
-    assert body["reply"] == "Vérifiez puis envoyez."
+    # Réponse fixe après le récapitulatif : un seul appel au modèle pour ce tour.
+    assert body["reply"] == RECAP_REPLY
+    assert len(fake.calls) == 1
     draft = body["draft"]
     assert draft["term"] == "kpɔ"
     assert draft["en_translation"] == "house"
     assert draft["force_create"] is True
     assert draft["translations"][0]["text"] == "case"
-    # Le résultat de l'outil est renvoyé au modèle au tour suivant.
-    tool_result = fake.calls[1]["messages"][-1]["content"][0]
-    assert tool_result["tool_use_id"] == "t1" and tool_result["is_error"] is False
 
     # Le brouillon est directement accepté par l'endpoint de contribution.
     r = client.post("/api/v1/contributions", json=draft)
