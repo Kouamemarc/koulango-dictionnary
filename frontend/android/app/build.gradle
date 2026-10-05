@@ -115,8 +115,8 @@ android {
         applicationId 'dev.koulango.dictionary'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.1.0"
+        versionCode 3
+        versionName "1.1.1"
     }
     def releaseCredentials = null
     def credentialsFile = new File(projectRoot, 'credentials.json')
