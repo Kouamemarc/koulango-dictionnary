@@ -41,7 +41,8 @@ export const MediaApi = {
     formData.append("file", {
       uri: asset.uri,
       name: asset.fileName ?? "image.jpg",
-      type: asset.mimeType ?? "image/jpeg",
+      // Type inconnu : le serveur le déduit de l'extension du fichier (ex. .m4a).
+      type: asset.mimeType ?? "application/octet-stream",
     } as unknown as Blob);
     return api
       .post<{ url: string }>("/media", formData, { headers: { "Content-Type": "multipart/form-data" } })
