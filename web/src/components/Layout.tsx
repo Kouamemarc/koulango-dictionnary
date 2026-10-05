@@ -23,7 +23,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <MenuIcon />
           </button>
           <NavLink to="/" className="brand">
-            <img src="/icon.png" alt="" />
+            <img src="/logo-128.webp" alt="" />
             <span className="brand-text">
               <span className="l1">DICTIONNAIRE</span>
               <span className="l2">KOULANGO</span>

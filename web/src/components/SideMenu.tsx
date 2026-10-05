@@ -35,7 +35,7 @@ export function SideMenu({ open, onClose }: { open: boolean; onClose: () => void
         <div className="side-head">
           {/* onClick : ferme aussi le menu quand on est déjà sur l'accueil (pas de changement de page). */}
           <NavLink to="/" className="side-brand" onClick={onClose} aria-label="Retour à l'accueil">
-            <img src="/icon.png" alt="" />
+            <img src="/logo-128.webp" alt="" />
             <span className="brand-text">
               <span className="l1">DICTIONNAIRE</span>
               <span className="l2">KOULANGO</span>

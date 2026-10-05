@@ -8,7 +8,7 @@ export function InstallBanner() {
 
   return (
     <div className="install-banner">
-      <img src="/icon.png" alt="" className="install-banner-icon" />
+      <img src="/logo-128.webp" alt="" className="install-banner-icon" />
       <div className="install-banner-text">
         <strong>Installer le Dictionnaire Koulango</strong>
         {showIOSInstructions ? (

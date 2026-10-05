@@ -1,11 +1,24 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { WordsApi } from "../api/endpoints";
 import { useFavorites } from "../store/favorites";
 import { useHistory } from "../store/history";
 import { HeartIcon, VolumeIcon, ShareIcon, ChevronIcon } from "../components/Icons";
-import type { Definition, Example, Translation } from "../api/types";
+import type { Definition, Example, Translation, WordDetail, WordSummary } from "../api/types";
+import { useOnlineStatus } from "../useOnlineStatus";
+
+/** Fiche minimale tirée de la liste des mots (gardée sur l'appareil), pour l'affichage hors ligne. */
+function fromSummary(w: WordSummary): WordDetail {
+  return {
+    id: w.id, term: w.term, fr_translation: w.fr_translation ?? null, en_translation: null,
+    part_of_speech: w.part_of_speech ?? null, source: null, image_url: w.image_url ?? null, status: w.status,
+    dialect_id: null, translations: [], pronunciations: [],
+    definitions: w.definition ? [{ id: 0, text: w.definition }] : [],
+    examples: w.example ? [{ id: 0, sentence: w.example, translation: null }] : [],
+    audios: w.audio_url ? [{ id: 0, url: w.audio_url }] : [],
+  };
+}
 
 /** Surligne l'occurrence du mot/expression dans une phrase d'exemple. */
 function highlighted(sentence: string, term: string) {
@@ -26,10 +39,21 @@ export default function WordDetailPage() {
   const [showMore, setShowMore] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const { data: word, isLoading } = useQuery({
+  const online = useOnlineStatus();
+  const { data: fullWord } = useQuery({
     queryKey: ["word", wordId],
     queryFn: () => WordsApi.detail(wordId),
   });
+  // Lecture seule du cache de la liste (aucun appel réseau) ; se met à jour quand le cache
+  // gardé sur l'appareil est rechargé au démarrage.
+  const { data: list } = useQuery({ queryKey: ["words", "list"], queryFn: WordsApi.list, enabled: false });
+  // Fiche jamais ouverte : on affiche tout de suite l'essentiel connu par la liste des mots
+  // (indispensable hors ligne), remplacé par la fiche complète dès qu'elle arrive.
+  const word = useMemo(() => {
+    if (fullWord) return fullWord;
+    const summary = list?.find((w) => w.id === wordId);
+    return summary ? fromSummary(summary) : undefined;
+  }, [fullWord, list, wordId]);
 
   const isFavorite = useFavorites((s) => (word ? s.isFavorite(word.id) : false));
   const toggleFavorite = useFavorites((s) => s.toggle);
@@ -67,7 +91,13 @@ export default function WordDetailPage() {
     }
   };
 
-  if (isLoading || !word) return <p className="empty-state">Chargement…</p>;
+  if (!word) {
+    return (
+      <p className="empty-state">
+        {online ? "Chargement…" : "Ce mot n'est pas disponible hors ligne. Reconnectez-vous pour l'afficher."}
+      </p>
+    );
+  }
 
   const hasAudio = word.audios.length > 0;
   const firstDefinition = word.definitions[0];

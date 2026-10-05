@@ -41,7 +41,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
+        globPatterns: ['**/*.{js,css,html,png,webp,svg,ico,woff2}'],
+        // Logo source (1,3 Mo) : les pages utilisent logo-128/288.png, inutile de le précharger.
+        globIgnores: ['icon.png'],
         // Illustrations des mots (servies par l'API) : gardées pour être vues hors ligne.
         runtimeCaching: [
           {

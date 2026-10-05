@@ -6,6 +6,7 @@ import { WordListItem } from "../components/WordListItem";
 import { SearchIcon, MicIcon, SwapIcon, ChevronIcon, ChatIcon } from "../components/Icons";
 import type { Lang, WordSummary } from "../api/types";
 import { useOnlineStatus } from "../useOnlineStatus";
+import { useOfflineImages } from "../useOfflineImages";
 
 /** Minuscules sans accents, pour comparer « dígô » et « digo ». */
 const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
@@ -19,6 +20,9 @@ export default function HomePage() {
   const online = useOnlineStatus();
   // Toujours chargée (et gardée sur l'appareil) : sert aussi à chercher hors ligne.
   const list = useQuery({ queryKey: ["words", "list"], queryFn: WordsApi.list });
+  // Illustrations de tous les mots gardées pour le hors ligne.
+  const imageUrls = useMemo(() => list.data?.map((w) => w.image_url), [list.data]);
+  useOfflineImages(imageUrls);
   // Dès la première lettre : recherche instantanée bidirectionnelle (koulango <-> français).
   const search = useQuery({
     queryKey: ["words", "search", q, lang],

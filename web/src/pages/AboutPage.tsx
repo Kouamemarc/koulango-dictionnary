@@ -4,7 +4,7 @@ export default function AboutPage() {
   return (
     <article className="about">
       <div className="about-hero">
-        <img src="/icon.png" alt="Logo du Dictionnaire Koulango" />
+        <img src="/logo-288.webp" alt="Logo du Dictionnaire Koulango" />
         <h1>À propos du Dictionnaire Koulango</h1>
         <p>Un dictionnaire collaboratif et gratuit, pour valoriser la langue et la culture koulango.</p>
       </div>
